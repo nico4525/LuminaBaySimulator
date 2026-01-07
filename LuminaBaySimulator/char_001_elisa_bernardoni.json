@@ -1,0 +1,36 @@
+﻿{
+	"npc_id": "char_001",
+	"name": "Elisa Bernardoni",
+	"age": 15,
+	"date_of_birth": "2009-10-11T00:00:00",
+	"min_player_age": 14,
+	"gender": "female",
+	"hex_color": "#D32F2F",
+	"sprite_path": "Assets/Images/Portraits/elisa_bernardoni.png",
+	"description": "Una ragazza carismatica che ama la moda. Indossa spesso abiti rossi che risaltano i suoi capelli scuri ondulati. Le sue unghie sono sempre impeccabili.",
+	"social_groups": [ "popolari", "fashioniste" ],
+	"romance_option": true,
+
+	"stats": {
+		"base_patience": 70,
+		"affection_max": 100,
+		"affection_current": 0,
+		"jealousy_factor": 0.6
+	},
+
+	"preferences": {
+		"favorite_foods": [ "sushi", "poke_bowl", "fragole" ],
+		"hobbies": [ "instagram", "shopping", "make_up" ],
+		"gifts_loved": [ "accessori_oro", "buono_zara", "cover_glitter" ],
+		"gifts_hated": [ "libri_antichi", "insetti", "attrezzatura_campeggio" ]
+	},
+
+	"schedule": {
+		"monday": {
+			"morning": "liceo_newton_classe_2B",
+			"afternoon": "centro_commerciale",
+			"evening": "casa",
+			"night": "camera_sua"
+		}
+	}
+}

@@ -1,0 +1,90 @@
+﻿<Window x:Class="LuminaBaySimulator.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:LuminaBaySimulator"
+        mc:Ignorable="d"
+        Title="Lumina Bay Simulator - Character Viewer (MVVM)" Height="550" Width="850"
+        Background="#F0F0F0">
+
+    <d:Window.DataContext>
+        <local:MainViewModel/>
+    </d:Window.DataContext>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="70"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="#333" Padding="20,10">
+            <Grid>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding WorldTime.CurrentDay, StringFormat='Giorno: {0}'}" 
+                               Foreground="White" FontSize="20" FontWeight="Bold" Margin="0,0,20,0"/>
+
+                    <TextBlock Text="{Binding WorldTime.LocalizedPhase, StringFormat='Fase: {0}'}" 
+                               Foreground="#AAA" FontSize="20" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <Button Content="Avanti >>" 
+                        Command="{Binding AdvanceTimeCommand}"
+                        HorizontalAlignment="Right" Width="120" Height="35" 
+                        Background="#FF9800" Foreground="White" FontWeight="Bold" BorderThickness="0"
+                        Cursor="Hand"/>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1" Margin="20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.5*"/>
+                <ColumnDefinition Width="3.5*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" BorderBrush="Gray" BorderThickness="1" CornerRadius="5" Background="White" Margin="0,0,20,0">
+                <Image Source="{Binding CurrentNpc.SpritePath}" Stretch="UniformToFill" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            </Border>
+
+            <StackPanel Grid.Column="1">
+
+                <TextBlock Text="{Binding CurrentNpc.Name}" FontSize="36" FontWeight="Bold" Foreground="{Binding CurrentNpc.HexColor}" Margin="0,0,0,10">
+                    <TextBlock.Effect>
+                        <DropShadowEffect Color="Black" BlurRadius="2" ShadowDepth="1" Opacity="0.3"/>
+                    </TextBlock.Effect>
+                </TextBlock>
+
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                    <Border Background="#333" CornerRadius="4" Padding="8,4" Margin="0,0,10,0">
+                        <TextBlock Text="{Binding CurrentNpc.Age, StringFormat='Età: {0}'}" 
+                                   Foreground="White" FontWeight="SemiBold"/>
+                    </Border>
+                    <Border Background="{Binding CurrentNpc.HexColor}" CornerRadius="4" Padding="8,4" Opacity="0.8">
+                        <TextBlock Text="{Binding CurrentNpc.SocialGroups[0], FallbackValue='Nessun Gruppo'}" Foreground="White" FontWeight="SemiBold"/>
+                    </Border>
+                </StackPanel>
+
+                <Border Background="#E8EAF6" BorderBrush="#3F51B5" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,20">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="📍 Posizione Attuale:" FontWeight="Bold" Foreground="#3F51B5" Margin="0,0,10,0"/>
+                        <TextBlock Text="{Binding CurrentNpc.CurrentLocation}" FontWeight="SemiBold" Foreground="#333"/>
+                    </StackPanel>
+                </Border>
+
+                <TextBlock Text="BIO" FontWeight="Bold" Foreground="#666" Margin="0,0,0,5"/>
+                <TextBlock Text="{Binding CurrentNpc.Description}" TextWrapping="Wrap" FontSize="14" Foreground="#333" LineHeight="22" Margin="0,0,0,30"/>
+
+                <Grid Margin="0,0,0,5">
+                    <TextBlock Text="PAZIENZA" FontWeight="Bold" Foreground="#444" HorizontalAlignment="Left"/>
+                    <TextBlock Text="{Binding CurrentNpc.Stats.CurrentPatience, StringFormat='{}{0} / 100'}" FontWeight="Bold" Foreground="#444" HorizontalAlignment="Right"/>
+                </Grid>
+
+                <ProgressBar Value="{Binding CurrentNpc.Stats.CurrentPatience}" Maximum="100" Height="20" Foreground="{Binding CurrentNpc.HexColor}" 
+                             Background="#E0E0E0" BorderThickness="0"/>
+
+                <TextBlock Text="Se arriva a 0, il legame è perso per sempre."
+                           FontSize="11" FontStyle="Italic" Foreground="#888" Margin="0,5,0,0"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>
