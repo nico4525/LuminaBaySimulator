@@ -194,6 +194,7 @@ namespace LuminaBaySimulator
             }
         }
 
+        [RelayCommand]
         private void InteractWithNpc(NpcData npc)
         {
             if (npc == null) return;

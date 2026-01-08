@@ -180,62 +180,58 @@
                     <ItemsControl ItemsSource="{Binding NpcsInLocation}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Button Command="{Binding DataContext.InteractWithNpcCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                CommandParameter="{Binding}"
-                                HorizontalContentAlignment="Stretch"
-                                Background="Transparent" BorderThickness="0" Margin="0,5">
-                                    <Border Style="{StaticResource CardStyle}" Height="80">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
+                                <Border Style="{StaticResource CardStyle}" Height="80" Margin="0,5">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
 
-                                            <Image Grid.Column="0" Source="{Binding SpritePath}" Width="60" Height="60" Stretch="UniformToFill"/>
+                                        <Image Grid.Column="0" Source="{Binding SpritePath}" Width="60" Height="60" Stretch="UniformToFill"/>
 
-                                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="15,0">
-                                                <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="18" Foreground="{Binding HexColor}"/>
-                                                <TextBlock Text="{Binding SocialGroups[0]}" FontSize="12" Foreground="#888"/>
-                                            </StackPanel>
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="15,0">
+                                            <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="18" Foreground="{Binding HexColor}"/>
+                                            <TextBlock Text="{Binding SocialGroups[0]}" FontSize="12" Foreground="#888"/>
+                                        </StackPanel>
 
-                                            <Button Grid.Column="2"
-                                                    Command="{Binding DataContext.InteractWithNpcCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                    CommandParameter="{Binding}"
-                                                    Background="Transparent"
-                                                    BorderThickness="0"
-                                                    Cursor="Hand"
-                                                    VerticalAlignment="Center"
-                                                    Margin="0,0,10,0">
-                                                <Button.Content>
-                                                    <TextBlock Text="💬 PARLA" 
-                                                        Foreground="#3F51B5" 
-                                                        FontWeight="Bold" 
-                                                        FontSize="14"/>
-                                                </Button.Content>
+                                        <Button Grid.Column="2"
+                                            Command="{Binding DataContext.InteractWithNpcCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                            CommandParameter="{Binding}"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            Cursor="Hand"
+                                            VerticalAlignment="Center"
+                                            Margin="0,0,10,0">
 
-                                                <Button.Style>
-                                                    <Style TargetType="Button">
-                                                        <Setter Property="Template">
-                                                            <Setter.Value>
-                                                                <ControlTemplate TargetType="Button">
-                                                                    <Border Background="{TemplateBinding Background}">
-                                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                                    </Border>
-                                                                </ControlTemplate>
-                                                            </Setter.Value>
-                                                        </Setter>
-                                                        <Style.Triggers>
-                                                            <Trigger Property="IsMouseOver" Value="True">
-                                                                <Setter Property="Opacity" Value="0.7"/>
-                                                            </Trigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </Button.Style>
-                                            </Button>
-                                        </Grid>
-                                    </Border>
-                                </Button>
+                                            <Button.Content>
+                                                <TextBlock Text="💬 PARLA" 
+                                                    Foreground="#3F51B5" 
+                                                    FontWeight="Bold" 
+                                                    FontSize="14"/>
+                                            </Button.Content>
+
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Template">
+                                                        <Setter.Value>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border Background="{TemplateBinding Background}">
+                                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                </Border>
+                                                            </ControlTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter Property="Opacity" Value="0.7"/>
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                    </Grid>
+                                </Border>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
