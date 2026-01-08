@@ -53,7 +53,18 @@
                             Command="{Binding StartDialogueCommand}"
                             VerticalAlignment="Bottom" HorizontalAlignment="Center"
                             Margin="0,0,0,20" Width="120" Height="40"
-                            Background="#3F51B5" Foreground="White" FontWeight="Bold"/>
+                            Background="#3F51B5" Foreground="White" FontWeight="Bold">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsDialogueActive}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
                 </Grid>
             </Border>
 
@@ -72,6 +83,13 @@
                         <TextBlock Text="{Binding CurrentNpc.SocialGroups[0], FallbackValue='Nessun Gruppo'}" Foreground="White" FontWeight="SemiBold"/>
                     </Border>
                 </StackPanel>
+
+                <Border Background="#E8EAF6" BorderBrush="#3F51B5" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,20">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="📍 Posizione Attuale:" FontWeight="Bold" Foreground="#3F51B5" Margin="0,0,10,0"/>
+                        <TextBlock Text="{Binding CurrentNpc.CurrentLocation}" FontWeight="SemiBold" Foreground="#333"/>
+                    </StackPanel>
+                </Border>
 
                 <Grid Margin="0,0,0,5">
                     <TextBlock Text="PAZIENZA" FontWeight="Bold" Foreground="#444" HorizontalAlignment="Left"/>
@@ -121,7 +139,7 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Button Content="{Binding ButtonDisplay}" 
+                            <Button Content="{Binding Text}" 
                                     Command="{Binding DataContext.SelectChoiceCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                     CommandParameter="{Binding}"
                                     Margin="5" Padding="15,10" 

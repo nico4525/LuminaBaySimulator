@@ -190,23 +190,6 @@ namespace LuminaBaySimulator
 
         [JsonProperty("impact")]
         public DialogueImpact? Impact { get; set; }
-
-        public string ButtonDisplay
-        {
-            get
-            {
-                if (Impact == null) return Text;
-
-                string info = "";
-
-                if (Impact.Affection > 0) info += $" [❤️ +{Impact.Affection}]";
-                else if (Impact.Affection < 0) info += $" [💔 {Impact.Affection}]";
-
-                if (Impact.Patience != 0) info += $" [⏳ {Impact.Patience:+0;-0}]";
-
-                return $"{Text}{info}";
-            }
-        }
     }
 
     public class DialogueImpact
