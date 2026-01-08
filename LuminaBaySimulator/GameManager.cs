@@ -17,10 +17,14 @@ namespace LuminaBaySimulator
         public List<NpcData> AllNpcs { get; private set; }
         public TimeManager WorldTime { get; private set; }
 
+        public PlayerStats Player { get; private set; }
+
         private GameManager()
         {
             AllNpcs = new List<NpcData>();
             WorldTime = new TimeManager();
+
+            Player = new PlayerStats();
         }
 
         public void LoadAllNpcs()

@@ -12,6 +12,7 @@ namespace LuminaBaySimulator
     public partial class MainViewModel : ObservableObject
     {
         public TimeManager WorldTime => GameManager.Instance.WorldTime;
+        public PlayerStats Player => GameManager.Instance.Player;
 
         [ObservableProperty]
         private NpcData? _currentNpc;
@@ -36,6 +37,77 @@ namespace LuminaBaySimulator
 
                 System.Diagnostics.Debug.WriteLine($"[DEBUG UI] Location calcolata: {CurrentNpc.CurrentLocation}");
             }
+
+            GameManager.Instance.WorldTime.PropertyChanged += (s, e) => RefreshCommandStates();
+            GameManager.Instance.Player.PropertyChanged += (s, e) => RefreshCommandStates();
+        }
+
+        private void RefreshCommandStates()
+        {
+            GoToSchoolCommand.NotifyCanExecuteChanged();
+            StudyCommand.NotifyCanExecuteChanged();
+            RelaxCommand.NotifyCanExecuteChanged();
+            SleepCommand.NotifyCanExecuteChanged();
+            AdvanceTimeCommand.NotifyCanExecuteChanged();
+        }
+
+        [RelayCommand(CanExecute = nameof(CanGoToSchool))]
+        private void GoToSchool()
+        {
+            Player.Energy -= 30;
+            Player.Stress += 10;
+            Player.Money += 5; 
+
+            LastActionFeedback = "Sei andato a scuola. Hai imparato qualcosa, ma che fatica!";
+
+            WorldTime.AdvanceTime();
+        }
+        private bool CanGoToSchool()
+        {
+            return WorldTime.CurrentPhase == DayPhase.Morning && Player.HasEnergy(30);
+        }
+
+        [RelayCommand(CanExecute = nameof(CanStudy))]
+        private void Study()
+        {
+            Player.Energy -= 20;
+            Player.Stress += 15; 
+
+            LastActionFeedback = "Hai studiato intensamente.";
+            WorldTime.AdvanceTime();
+        }
+        private bool CanStudy()
+        {
+            return WorldTime.CurrentPhase != DayPhase.Night && Player.HasEnergy(20);
+        }
+
+        [RelayCommand(CanExecute = nameof(CanRelax))]
+        private void Relax()
+        {
+            Player.Energy -= 5;
+            Player.Stress -= 20; 
+
+            LastActionFeedback = "Ti sei preso un momento per respirare. Lo stress diminuisce.";
+            WorldTime.AdvanceTime();
+        }
+        private bool CanRelax()
+        {
+            return Player.HasEnergy(5);
+        }
+
+        [RelayCommand]
+        private void Sleep()
+        {
+            Player.Energy = 100;
+            Player.Stress = 0;
+
+            LastActionFeedback = "Hai dormito profondamente. Sei pronto per un nuovo giorno!";
+
+            while (WorldTime.CurrentPhase != DayPhase.Night)
+            {
+                WorldTime.AdvanceTime();
+            }
+            WorldTime.AdvanceTime(); 
         }
 
         [RelayCommand]
