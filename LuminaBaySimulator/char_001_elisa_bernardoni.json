@@ -37,117 +37,50 @@
 	"dialogues": {
 		"root": {
 			"id": "root",
-			"text": "Ehi, non ti ho mai visto in giro con questo outfit. È... interessante.",
+			"text": "Uff... oggi è una giornata terribile. Ho litigato con Giulia e ho bisogno di zuccheri.",
 			"choices": [
 				{
-					"text": "Grazie! Cerco di avere uno stile unico.",
-					"next_node_id": "style_compliment",
+					"text": "Mi dispiace, spero le cose migliorino.",
+					"next_node_id": "sad_end",
 					"impact": {
-						"affection": 5,
+						"affection": 2,
 						"patience": 0
 					}
 				},
 				{
-					"text": "Non mi interessa molto la moda.",
-					"next_node_id": "style_insult",
+					"text": "Ho comprato questi per te! (Dai Cioccolatini)",
+					"next_node_id": "gift_reaction",
 					"impact": {
-						"affection": -2,
-						"patience": -5
-					}
-				},
-				{
-					"text": "Sei Elisa, vero? Ho sentito parlare di te.",
-					"next_node_id": "know_me",
-					"impact": {
-						"affection": 0,
-						"patience": 0
+						"affection": 20,
+						"patience": 10
+					},
+					"requirements": {
+						"item_id": "cioccolatini"
 					}
 				}
 			]
 		},
-		"style_compliment": {
-			"id": "style_compliment",
-			"text": "Beh, almeno hai coraggio. Forse potremmo fare shopping insieme qualche volta, potrei darti qualche dritta.",
+		"gift_reaction": {
+			"id": "gift_reaction",
+			"text": "Oddio! Sono i miei preferiti! Come sapevi che ne avevo bisogno? Sei il migliore!",
 			"choices": [
 				{
-					"text": "Mi piacerebbe molto! (Buono Zara)",
-					"next_node_id": "shopping_accept",
+					"text": "L'intuito non sbaglia mai.",
+					"next_node_id": "END",
 					"impact": {
-						"affection": 15,
+						"affection": 5,
 						"patience": 5
 					}
-				},
-				{
-					"text": "No grazie, sto bene così.",
-					"next_node_id": "END",
-					"impact": {
-						"affection": 0,
-						"patience": -2
-					}
 				}
 			]
 		},
-		"style_insult": {
-			"id": "style_insult",
-			"text": "Si vede. Peccato, la prima impressione conta molto qui a Lumina Bay.",
+		"sad_end": {
+			"id": "sad_end",
+			"text": "Sì, vabbè. Ciao.",
 			"choices": [
 				{
-					"text": "Me ne ricorderò.",
-					"next_node_id": "END",
-					"impact": {
-						"affection": 0,
-						"patience": -5
-					}
-				}
-			]
-		},
-		"know_me": {
-			"id": "know_me",
-			"text": "Spero cose belle. La gente adora inventare storie su di me solo perché ho gusto.",
-			"choices": [
-				{
-					"text": "Solo cose belle, tranquilla.",
-					"next_node_id": "style_compliment",
-					"impact": {
-						"affection": 5,
-						"patience": 0
-					}
-				},
-				{
-					"text": "Dicono che sei un po' superficiale.",
-					"next_node_id": "angry_exit",
-					"impact": {
-						"affection": -10,
-						"patience": -20
-					}
-				}
-			]
-		},
-		"shopping_accept": {
-			"id": "shopping_accept",
-			"text": "Perfetto! Scrivimi più tardi. Ciao!",
-			"choices": [
-				{
-					"text": "A presto!",
-					"next_node_id": "END",
-					"impact": {
-						"affection": 0,
-						"patience": 0
-					}
-				}
-			]
-		},
-		"angry_exit": {
-			"id": "angry_exit",
-			"text": "Come ti permetti? Sparisci dalla mia vista.",
-			"choices": [
-				{
-					"text": "(Te ne vai)",
-					"next_node_id": "END",
-					"impact": {
-						"affection": 0,
-						"patience": 0
-					}
+					"text": "Ciao.",
+					"next_node_id": "END"
 				}
 			]
 		}

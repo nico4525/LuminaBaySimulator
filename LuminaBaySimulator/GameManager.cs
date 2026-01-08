@@ -21,13 +21,49 @@ namespace LuminaBaySimulator
 
         public List<GameLocation> Locations { get; private set; }
 
+        public List<GameItem> ShopItems { get; private set; }
+
         private GameManager()
         {
             AllNpcs = new List<NpcData>();
             WorldTime = new TimeManager();
             Player = new PlayerStats();
+            ShopItems = new List<GameItem>();
 
             InitializeLocations();
+            LoadShopItems();
+        }
+
+        public void LoadShopItems()
+        {
+            ShopItems.Clear();
+            string targetDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string shopFile = Path.Combine(targetDirectory, "shop_data.json");
+
+            #if DEBUG
+            string debugPath = Path.GetFullPath(Path.Combine(targetDirectory, @"..\..\..\"));
+            if (File.Exists(Path.Combine(debugPath, "shop_data.json")))
+            {
+                shopFile = Path.Combine(debugPath, "shop_data.json");
+            }
+            #endif
+
+            if (File.Exists(shopFile))
+            {
+                try
+                {
+                    string jsonContent = File.ReadAllText(shopFile);
+                    var items = JsonConvert.DeserializeObject<List<GameItem>>(jsonContent);
+                    if (items != null)
+                    {
+                        ShopItems.AddRange(items);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Errore caricamento negozio: {ex.Message}");
+                }
+            }
         }
 
         private void InitializeLocations()

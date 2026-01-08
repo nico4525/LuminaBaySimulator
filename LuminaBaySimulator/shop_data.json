@@ -1,0 +1,20 @@
+﻿[
+  {
+    "Id": "cioccolatini",
+    "Name": "Scatola di Cioccolatini",
+    "Description": "Cioccolatini svizzeri assortiti. Ottimi per addolcire qualcuno.",
+    "Cost": 20
+  },
+  {
+    "Id": "energy_drink",
+    "Name": "Lumina Energy",
+    "Description": "Ti tiene sveglio... forse troppo.",
+    "Cost": 10
+  },
+  {
+    "Id": "ticket_concerto",
+    "Name": "Biglietto Concerto",
+    "Description": "Un pass per il concerto indie del weekend.",
+    "Cost": 45
+  }
+]

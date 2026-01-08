@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Security.Policy;
@@ -25,6 +26,8 @@ namespace LuminaBaySimulator
 
         public const int MaxEnergy = 100;
         public const int MaxStress = 100;
+
+        public ObservableCollection<GameItem> Inventory { get; } = new ObservableCollection<GameItem>();
 
         public PlayerStats()
         {
@@ -54,6 +57,17 @@ namespace LuminaBaySimulator
         public bool HasEnergy(int amount)
         {
             return Energy >= amount;
+        }
+
+        public void AddItem(GameItem item)
+        {
+            Inventory.Add(item);
+            OnPropertyChanged(nameof(Inventory));
+        }
+
+        public bool HasItem(string itemId)
+        {
+            return Inventory.Any(i => i.Id == itemId);
         }
     }
 }

@@ -172,6 +172,11 @@
                 <Border Grid.Row="0" Background="White" Padding="20" BorderBrush="#EEE" BorderThickness="0,0,0,1">
                     <DockPanel>
                         <Button DockPanel.Dock="Left" Content="⬅ Torna alla Mappa" Command="{Binding BackToMapCommand}" Padding="10,5"/>
+
+                        <Button DockPanel.Dock="Right" Content="🛍️ Vai al Negozio" 
+                                Command="{Binding OpenShopCommand}" 
+                                Padding="10,5" Margin="10,0,0,0" Background="#FF9800" Foreground="White" FontWeight="Bold"/>
+
                         <TextBlock Text="{Binding CurrentLocation.Name}" FontSize="24" FontWeight="Bold" HorizontalAlignment="Right" Foreground="#333"/>
                     </DockPanel>
                 </Border>
@@ -345,5 +350,73 @@
             </Grid>
         </Border>
 
+        <Grid Background="#FFF8E1">
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding CurrentViewMode}" Value="Shop">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Background="#FF9800" Padding="20" BorderBrush="#F57C00" BorderThickness="0,0,0,2">
+                <DockPanel>
+                    <Button DockPanel.Dock="Left" Content="⬅ Esci dal Negozio" Command="{Binding CloseShopCommand}" Padding="10,5" Background="White" FontWeight="Bold"/>
+                    <TextBlock Text="🛍️ GENERAL STORE" FontSize="24" FontWeight="Bold" HorizontalAlignment="Right" Foreground="White"/>
+                </DockPanel>
+            </Border>
+
+            <ScrollViewer Grid.Row="1" Margin="20">
+                <ItemsControl ItemsSource="{Binding CurrentShopInventory}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="White" Width="220" Margin="10" Padding="15" CornerRadius="8" BorderBrush="#DDD" BorderThickness="1">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="10" Opacity="0.1" ShadowDepth="2"/>
+                                </Border.Effect>
+                                <StackPanel>
+                                    <TextBlock Text="📦" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+
+                                    <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="16" TextWrapping="Wrap" TextAlignment="Center"/>
+                                    <TextBlock Text="{Binding Description}" FontSize="11" Foreground="Gray" TextWrapping="Wrap" TextAlignment="Center" Margin="0,5,0,10" Height="35"/>
+
+                                    <Separator Margin="0,5"/>
+
+                                    <DockPanel LastChildFill="False" Margin="0,5,0,0">
+                                        <TextBlock Text="{Binding Cost, StringFormat={}€ {0}}" FontWeight="Bold" Foreground="#388E3C" VerticalAlignment="Center" FontSize="16" DockPanel.Dock="Left"/>
+
+                                        <Button Content="COMPRA" DockPanel.Dock="Right"
+                                        Command="{Binding DataContext.BuyItemCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                        CommandParameter="{Binding}"
+                                        Background="#4CAF50" Foreground="White" FontWeight="Bold" Padding="15,5" BorderThickness="0" Cursor="Hand">
+                                            <Button.Resources>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="CornerRadius" Value="4"/>
+                                                </Style>
+                                            </Button.Resources>
+                                        </Button>
+                                    </DockPanel>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+
     </Grid>
+    
 </Window>

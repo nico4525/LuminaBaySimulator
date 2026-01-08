@@ -14,7 +14,8 @@ namespace LuminaBaySimulator
     {
         Map,           
         LocationInside, 
-        Dialogue        
+        Dialogue,
+        Shop
     }
 
     public partial class MainViewModel : ObservableObject
@@ -24,6 +25,8 @@ namespace LuminaBaySimulator
 
         [ObservableProperty]
         private GameViewMode _currentViewMode = GameViewMode.Map;
+
+        public ObservableCollection<GameItem> CurrentShopInventory { get; } = new ObservableCollection<GameItem>();
 
         public ObservableCollection<GameLocation> AvailableLocations { get; } = new ObservableCollection<GameLocation>(GameManager.Instance.Locations);
 
@@ -195,6 +198,45 @@ namespace LuminaBaySimulator
         }
 
         [RelayCommand]
+        private void OpenShop()
+        {
+            CurrentShopInventory.Clear();
+            foreach (var item in GameManager.Instance.ShopItems)
+            {
+                CurrentShopInventory.Add(item);
+            }
+
+            CurrentViewMode = GameViewMode.Shop;
+            LastActionFeedback = "Benvenuto al Centro Commerciale! Cosa vuoi comprare?";
+        }
+
+        [RelayCommand]
+        private void CloseShop()
+        {
+            CurrentViewMode = GameViewMode.LocationInside;
+            LastActionFeedback = "Hai lasciato il negozio.";
+        }
+
+        [RelayCommand]
+        private void BuyItem(GameItem item)
+        {
+            if (item == null) return;
+
+            if (Player.Money >= item.Cost)
+            {
+                Player.Money -= item.Cost;
+                Player.AddItem(item);
+                LastActionFeedback = $"Hai acquistato: {item.Name}!";
+
+                BuyItemCommand.NotifyCanExecuteChanged();
+            }
+            else
+            {
+                LastActionFeedback = "Non hai abbastanza soldi per questo oggetto!";
+            }
+        }
+
+        [RelayCommand]
         private void InteractWithNpc(NpcData npc)
         {
             if (npc == null) return;
@@ -259,7 +301,6 @@ namespace LuminaBaySimulator
         private bool CanSelectChoice(DialogueChoice choice)
         {
             if (choice == null) return false;
-
             if (choice.Requirements == null) return true;
 
             bool meetsMoney = true;
@@ -267,18 +308,14 @@ namespace LuminaBaySimulator
             bool meetsItem = true;
 
             if (choice.Requirements.Money.HasValue)
-            {
                 meetsMoney = Player.Money >= choice.Requirements.Money.Value;
-            }
 
             if (choice.Requirements.Intelligence.HasValue)
-            {
-                meetsIntel = true;
-            }
+                meetsIntel = Player.Intelligence >= choice.Requirements.Intelligence.Value; 
 
             if (!string.IsNullOrEmpty(choice.Requirements.ItemId))
             {
-                meetsItem = false; 
+                meetsItem = Player.HasItem(choice.Requirements.ItemId);
             }
 
             return meetsMoney && meetsIntel && meetsItem;
