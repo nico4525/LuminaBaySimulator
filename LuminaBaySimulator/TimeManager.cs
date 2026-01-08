@@ -57,14 +57,7 @@ namespace LuminaBaySimulator
             CurrentPhase = DayPhase.Morning;
             CurrentDay++;
 
-            if (CurrentDayOfWeek == DayOfWeek.Sunday)
-            {
-                CurrentDayOfWeek = DayOfWeek.Monday;
-            }
-            else
-            {
-                CurrentDayOfWeek++;
-            }
+            CurrentDayOfWeek = (DayOfWeek)(((int)CurrentDayOfWeek + 1) % 7);
 
             NewDayStarted?.Invoke(this, EventArgs.Empty);
         }
