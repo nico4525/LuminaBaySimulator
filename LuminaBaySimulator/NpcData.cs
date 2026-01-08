@@ -11,6 +11,14 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace LuminaBaySimulator
 {
+    public class NpcCoordinates
+    {
+        [JsonProperty("x")]
+        public double X { get; set; }
+        [JsonProperty("y")]
+        public double Y { get; set; }
+    }
+
     public partial class NpcData : ObservableObject
     {
         [ObservableProperty]
@@ -58,6 +66,15 @@ namespace LuminaBaySimulator
 
         [JsonProperty("special_events")]
         public Dictionary<int, DaySchedule>? SpecialEvents { get; set; }
+
+        [ObservableProperty]
+        private double _currentX;
+
+        [ObservableProperty]
+        private double _currentY;
+
+        [JsonProperty("location_coordinates")]
+        public Dictionary<string, NpcCoordinates> LocationCoordinates { get; set; } = new Dictionary<string, NpcCoordinates>();
 
         public NpcData()
         {
@@ -150,6 +167,32 @@ namespace LuminaBaySimulator
         public void RefreshLocation()
         {
             OnPropertyChanged(nameof(CurrentLocationUiString));
+            UpdateCoordinatesForCurrentLocation();
+        }
+
+        private void UpdateCoordinatesForCurrentLocation()
+        {
+            if (GameManager.Instance == null) return;
+
+            string locId = GetCurrentLocationId(
+                 GameManager.Instance.CurrentWeather,
+                 GameManager.Instance.WorldTime.CurrentDay,
+                 GameManager.Instance.WorldTime.CurrentPhase,
+                 GameManager.Instance.WorldTime.CurrentDayOfWeek
+            );
+
+            if (LocationCoordinates != null && LocationCoordinates.ContainsKey(locId))
+            {
+                CurrentX = LocationCoordinates[locId].X;
+                CurrentY = LocationCoordinates[locId].Y;
+            }
+            else
+            {
+
+                var rand = new Random(this.GetHashCode());
+                CurrentX = rand.Next(50, 600);
+                CurrentY = rand.Next(150, 400);
+            }
         }
     }
 

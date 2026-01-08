@@ -15,6 +15,20 @@
 			"night": "camera_sua"
 		}
 	},
+	"location_coordinates": {
+		"liceo_newton_classe_2B": {
+			"x": 150,
+			"y": 280
+		},
+		"parco": {
+			"x": 400,
+			"y": 350
+		},
+		"centro_commerciale": {
+			"x": 50,
+			"y": 200
+		}
+	},
 	"dialogues": {
 		"root": {
 			"id": "root",

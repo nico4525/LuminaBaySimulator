@@ -18,6 +18,14 @@ namespace LuminaBaySimulator
         Shop
     }
 
+    public class FloatingTextItem
+    {
+        public string Text { get; set; } = "";
+        public string Color { get; set; } = "White";
+        public double StartX { get; set; }
+        public double StartY { get; set; }
+    }
+
     public partial class MainViewModel : ObservableObject
     {
         public TimeManager WorldTime => GameManager.Instance.WorldTime;
@@ -51,17 +59,71 @@ namespace LuminaBaySimulator
         [ObservableProperty]
         private bool _isStatusVisible;
 
+        public ObservableCollection<FloatingTextItem> FloatingsEffects { get; } = new ObservableCollection<FloatingTextItem>();
+
+        private int _lastMoney;
+        private int _lastEnergy;
+        private int _lastStress;
+
         public MainViewModel()
         {
             GameManager.Instance.LoadAllNpcs();
 
+            _lastMoney = Player.Money;
+            _lastEnergy = Player.Energy;
+            _lastStress = Player.Stress;
+
             GameManager.Instance.WorldTime.NewDayStarted += (s, e) => ShowStatusMessage("🌅 È sorto un nuovo giorno!", 4000);
 
             GameManager.Instance.WorldTime.PropertyChanged += (s, e) => RefreshCommandStates();
-            GameManager.Instance.Player.PropertyChanged += (s, e) => RefreshCommandStates();
+            GameManager.Instance.Player.PropertyChanged += OnPlayerStatsChanged;
 
             CurrentNpc = GameManager.Instance.AllNpcs.FirstOrDefault();
             if (CurrentNpc != null) CurrentNpc.RefreshLocation();
+        }
+
+        private void OnPlayerStatsChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            RefreshCommandStates(); 
+
+            if (e.PropertyName == nameof(PlayerStats.Money))
+            {
+                int diff = Player.Money - _lastMoney;
+                if (diff != 0) SpawnFloatingText(diff > 0 ? $"+{diff}€" : $"{diff}€", diff > 0 ? "#FFD700" : "#E57373");
+                _lastMoney = Player.Money;
+            }
+            else if (e.PropertyName == nameof(PlayerStats.Energy))
+            {
+                int diff = Player.Energy - _lastEnergy;
+                if (diff != 0) SpawnFloatingText(diff > 0 ? $"+{diff}⚡" : $"{diff}⚡", diff > 0 ? "#76FF03" : "#BDBDBD");
+                _lastEnergy = Player.Energy;
+            }
+            else if (e.PropertyName == nameof(PlayerStats.Stress))
+            {
+                int diff = Player.Stress - _lastStress;
+                if (diff != 0) SpawnFloatingText(diff > 0 ? $"+{diff} Stress" : $"{diff} Stress", diff > 0 ? "#FF3D00" : "#00E5FF");
+                _lastStress = Player.Stress;
+            }
+        }
+
+        private async void SpawnFloatingText(string text, string color)
+        {
+            // Creiamo l'oggetto visuale
+            var floatingItem = new FloatingTextItem
+            {
+                Text = text,
+                Color = color,
+                StartX = 400 + new Random().Next(-50, 50),
+                StartY = 300
+            };
+
+            FloatingEffects.Add(floatingItem);
+
+            await Task.Delay(2000);
+            if (FloatingEffects.Contains(floatingItem))
+            {
+                FloatingEffects.Remove(floatingItem);
+            }
         }
 
         /// <summary>
@@ -192,6 +254,7 @@ namespace LuminaBaySimulator
             NpcsInLocation.Clear();
             foreach (var npc in npcs)
             {
+                npc.RefreshLocation();
                 NpcsInLocation.Add(npc);
             }
 
