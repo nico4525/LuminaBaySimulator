@@ -80,15 +80,20 @@ namespace LuminaBaySimulator
                 if (Schedule == null || Schedule.Count == 0)
                     return "Nessuna Schedule";
 
-                var dayKey = Schedule.Keys.FirstOrDefault(k => k.Equals("monday", StringComparison.OrdinalIgnoreCase));
-
-                if (dayKey == null)
-                    return "Giorno non trovato";
-
-                var daySchedule = Schedule[dayKey];
-                if (daySchedule == null) return "Dati corrotti";
-
                 if (GameManager.Instance == null) return "GameManager Error";
+
+                var currentDayEnum = GameManager.Instance.WorldTime.CurrentDayOfWeek;
+
+                string currentDayKey = currentDayEnum.ToString().ToLowerInvariant();
+
+                if (!Schedule.TryGetValue(currentDayKey, out var daySchedule))
+                {
+                    if (!Schedule.TryGetValue("default", out daySchedule) &&
+                        !Schedule.TryGetValue("monday", out daySchedule))
+                    {
+                        return "Riposo (No Schedule)";
+                    }
+                }
 
                 var phase = GameManager.Instance.WorldTime.CurrentPhase;
 

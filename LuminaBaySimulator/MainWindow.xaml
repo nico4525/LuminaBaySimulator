@@ -50,10 +50,11 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0" Orientation="Vertical">
-                    <TextBlock Text="{Binding WorldTime.CurrentDay, StringFormat='GIORNO {0}'}" 
-                               Foreground="#FFD700" FontSize="14" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding WorldTime.FullDateString}" 
+                        Foreground="#FFD700" FontSize="14" FontWeight="Bold"/>
+
                     <TextBlock Text="{Binding WorldTime.LocalizedPhase}" 
-                               Foreground="White" FontSize="24" FontWeight="Bold"/>
+                        Foreground="White" FontSize="24" FontWeight="Bold"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
