@@ -59,7 +59,7 @@ namespace LuminaBaySimulator
         [ObservableProperty]
         private bool _isStatusVisible;
 
-        public ObservableCollection<FloatingTextItem> FloatingsEffects { get; } = new ObservableCollection<FloatingTextItem>();
+        public ObservableCollection<FloatingTextItem> FloatingEffects { get; } = new ObservableCollection<FloatingTextItem>();
 
         private int _lastMoney;
         private int _lastEnergy;

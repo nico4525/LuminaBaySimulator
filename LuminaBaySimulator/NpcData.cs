@@ -288,6 +288,9 @@ namespace LuminaBaySimulator
         [JsonProperty("money")]
         public int? Money { get; set; }
 
+        [JsonProperty("energy")]
+        public int? Energy { get; set; }
+
         [JsonProperty("item_id")]
         public string? ItemId { get; set; }
 
