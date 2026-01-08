@@ -180,7 +180,7 @@ namespace LuminaBaySimulator
         public List<DialogueChoice> Choices { get; set; } = new List<DialogueChoice>();
     }
 
-    public class DialogueChoice
+    public class DialogueChoice : ObservableObject
     {
         [JsonProperty("text")]
         public string Text { get; set; } = string.Empty;
@@ -190,6 +190,21 @@ namespace LuminaBaySimulator
 
         [JsonProperty("impact")]
         public DialogueImpact? Impact { get; set; }
+
+        [JsonProperty("requirements")]
+        public DialogueRequirements? Requirements { get; set; }
+    }
+
+    public class DialogueRequirements
+    {
+        [JsonProperty("intelligence")]
+        public int? Intelligence { get; set; }
+
+        [JsonProperty("money")]
+        public int? Money { get; set; }
+
+        [JsonProperty("item_id")]
+        public string? ItemId { get; set; }
     }
 
     public class DialogueImpact

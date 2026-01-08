@@ -24,6 +24,8 @@ namespace LuminaBaySimulator
         [NotifyPropertyChangedFor(nameof(LocalizedPhase))]
         private DayPhase _currentPhase = DayPhase.Morning;
 
+        public event EventHandler? NewDayStarted;
+
         public void AdvanceTime()
         {
             switch (CurrentPhase)
@@ -39,9 +41,17 @@ namespace LuminaBaySimulator
                     break;
                 case DayPhase.Night:
                     CurrentPhase = DayPhase.Morning;
-                    CurrentDay++;
+                    AdvanceDay();
                     break;
             }
+        }
+
+        private void AdvanceDay()
+        {
+            CurrentPhase = DayPhase.Morning;
+            CurrentDay++;
+
+            NewDayStarted?.Invoke(this, EventArgs.Empty);
         }
 
         public string LocalizedPhase

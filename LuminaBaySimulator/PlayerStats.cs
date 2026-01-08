@@ -12,6 +12,9 @@ namespace LuminaBaySimulator
     public partial class PlayerStats : ObservableObject
     {
         [ObservableProperty]
+        private int _intelligence;
+
+        [ObservableProperty]
         private int _money;
 
         [ObservableProperty]

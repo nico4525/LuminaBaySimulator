@@ -30,16 +30,28 @@ namespace LuminaBaySimulator
         {
             GameManager.Instance.LoadAllNpcs();
 
+            GameManager.Instance.WorldTime.NewDayStarted += OnNewDayStarted;
+
+            GameManager.Instance.Player.PropertyChanged += (s, e) =>
+            {
+                RefreshCommandStates();
+                SelectChoiceCommand.NotifyCanExecuteChanged();
+            };
+
+            GameManager.Instance.WorldTime.PropertyChanged += (s, e) => RefreshCommandStates();
+
             CurrentNpc = GameManager.Instance.AllNpcs.FirstOrDefault();
             if (CurrentNpc != null)
             {
                 CurrentNpc.RefreshLocation();
-
-                System.Diagnostics.Debug.WriteLine($"[DEBUG UI] Location calcolata: {CurrentNpc.CurrentLocation}");
             }
+        }
 
-            GameManager.Instance.WorldTime.PropertyChanged += (s, e) => RefreshCommandStates();
-            GameManager.Instance.Player.PropertyChanged += (s, e) => RefreshCommandStates();
+        private void OnNewDayStarted(object? sender, EventArgs e)
+        {
+            Player.Energy = PlayerStats.MaxEnergy; 
+
+            LastActionFeedback = "È sorto un nuovo giorno! L'energia è stata ripristinata.";
         }
 
         private void RefreshCommandStates()
@@ -98,16 +110,13 @@ namespace LuminaBaySimulator
         [RelayCommand]
         private void Sleep()
         {
-            Player.Energy = 100;
-            Player.Stress = 0;
-
-            LastActionFeedback = "Hai dormito profondamente. Sei pronto per un nuovo giorno!";
+            LastActionFeedback = "Vai a dormire...";
 
             while (WorldTime.CurrentPhase != DayPhase.Night)
             {
                 WorldTime.AdvanceTime();
             }
-            WorldTime.AdvanceTime(); 
+            WorldTime.AdvanceTime();
         }
 
         [RelayCommand]
@@ -133,7 +142,7 @@ namespace LuminaBaySimulator
             LoadNode("root");
         }
 
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanSelectChoice))]
         private void SelectChoice(DialogueChoice choice)
         {
             if (CurrentNpc == null || CurrentNpc.Stats == null) return;
@@ -162,16 +171,44 @@ namespace LuminaBaySimulator
             }
         }
 
+        private bool CanSelectChoice(DialogueChoice choice)
+        {
+            if (choice == null) return false;
+
+            if (choice.Requirements == null) return true;
+
+            bool meetsMoney = true;
+            bool meetsIntel = true;
+            bool meetsItem = true;
+
+            if (choice.Requirements.Money.HasValue)
+            {
+                meetsMoney = Player.Money >= choice.Requirements.Money.Value;
+            }
+
+            if (choice.Requirements.Intelligence.HasValue)
+            {
+                meetsIntel = true;
+            }
+
+            if (!string.IsNullOrEmpty(choice.Requirements.ItemId))
+            {
+                meetsItem = false; 
+            }
+
+            return meetsMoney && meetsIntel && meetsItem;
+        }
+
         private void LoadNode(string nodeId)
         {
             if (CurrentNpc != null && CurrentNpc.Dialogues != null && CurrentNpc.Dialogues.TryGetValue(nodeId, out var node))
             {
                 CurrentDialogueNode = node;
+                SelectChoiceCommand.NotifyCanExecuteChanged();
             }
             else
             {
                 IsDialogueActive = false;
-                MessageBox.Show($"Errore: Nodo dialogo '{nodeId}' non trovato.", "Errore Dialogo");
             }
         }
     }
