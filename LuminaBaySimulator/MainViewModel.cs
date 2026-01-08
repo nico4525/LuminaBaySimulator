@@ -30,11 +30,11 @@ namespace LuminaBaySimulator
             GameManager.Instance.LoadAllNpcs();
 
             CurrentNpc = GameManager.Instance.AllNpcs.FirstOrDefault();
-
-            if (CurrentNpc == null)
+            if (CurrentNpc != null)
             {
-                MessageBox.Show("Nessun NPC trovato! Controlla che i file JSON siano copiati nella cartella di output.",
-                                "Attenzione", MessageBoxButton.OK, MessageBoxImage.Warning);
+                CurrentNpc.RefreshLocation();
+
+                System.Diagnostics.Debug.WriteLine($"[DEBUG UI] Location calcolata: {CurrentNpc.CurrentLocation}");
             }
         }
 

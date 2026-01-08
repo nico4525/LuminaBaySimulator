@@ -27,33 +27,54 @@ namespace LuminaBaySimulator
         {
             AllNpcs.Clear();
 
-            string folderPath = AppDomain.CurrentDomain.BaseDirectory;
+            string targetDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
-            string[] jsonFiles = Directory.GetFiles(folderPath, "*.json");
+            #if DEBUG
+            
+            string debugPath = Path.GetFullPath(Path.Combine(targetDirectory, @"..\..\..\"));
+            if (Directory.Exists(debugPath))
+            {
+                targetDirectory = debugPath;
+                System.Diagnostics.Debug.WriteLine($"[DEBUG MODE] Leggo i file dalla cartella sorgente: {targetDirectory}");
+            }
+            #endif
 
-            Debug.WriteLine($"[GameManager] Trovati {jsonFiles.Length} file JSON in {folderPath}");
+            string[] jsonFiles = Directory.GetFiles(targetDirectory, "char_*.json");
+
+            if (jsonFiles.Length == 0)
+            {
+                System.Diagnostics.Debug.WriteLine($"[ERRORE] Nessun file JSON trovato in: {targetDirectory}");
+                return;
+            }
 
             foreach (string file in jsonFiles)
             {
                 try
                 {
                     string jsonContent = File.ReadAllText(file);
+
+                    if (!jsonContent.Contains("dialogues"))
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[ATTENZIONE CRITICA] Il file {Path.GetFileName(file)} letto da {targetDirectory} NON ha i dialoghi!");
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[OK] Trovata sezione dialoghi in {Path.GetFileName(file)}");
+                    }
+
                     var npc = JsonConvert.DeserializeObject<NpcData>(jsonContent);
 
-                    if (npc != null && !string.IsNullOrEmpty(npc.Id) && !string.IsNullOrEmpty(npc.Name))
+                    if (npc != null && !string.IsNullOrEmpty(npc.Id))
                     {
-                        if (npc.Stats != null)
-                        {
+                        if (npc.Stats != null && npc.Stats.CurrentPatience == 0)
                             npc.Stats.CurrentPatience = npc.Stats.BasePatience;
-                        }
 
                         AllNpcs.Add(npc);
-                        Debug.WriteLine($"[GameManager] Caricato NPC: {npc.Name}");
                     }
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"[GameManager] ERRORE caricamento {Path.GetFileName(file)}: {ex.Message}");
+                    System.Diagnostics.Debug.WriteLine($"Error loading NPC {file}: {ex.Message}");
                 }
             }
         }

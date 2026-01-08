@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace LuminaBaySimulator
 {
@@ -76,27 +77,31 @@ namespace LuminaBaySimulator
         {
             get
             {
-                if (Schedule == null) return "Posizione Sconosciuta";
+                if (Schedule == null || Schedule.Count == 0)
+                    return "Nessuna Schedule";
 
-                string dayKey = "monday"; 
+                var dayKey = Schedule.Keys.FirstOrDefault(k => k.Equals("monday", StringComparison.OrdinalIgnoreCase));
 
-                if (Schedule.TryGetValue(dayKey, out DaySchedule? daySchedule) && daySchedule != null)
+                if (dayKey == null)
+                    return "Giorno non trovato";
+
+                var daySchedule = Schedule[dayKey];
+                if (daySchedule == null) return "Dati corrotti";
+
+                if (GameManager.Instance == null) return "GameManager Error";
+
+                var phase = GameManager.Instance.WorldTime.CurrentPhase;
+
+                string? rawLocation = phase switch
                 {
-                    var currentPhase = GameManager.Instance!.WorldTime.CurrentPhase;
+                    DayPhase.Morning => daySchedule.morning,
+                    DayPhase.Afternoon => daySchedule.afternoon,
+                    DayPhase.Evening => daySchedule.evening,
+                    DayPhase.Night => daySchedule.night,
+                    _ => "Sconosciuto"
+                };
 
-                    string? rawLocation = currentPhase switch
-                    {
-                        DayPhase.Morning => daySchedule.morning,
-                        DayPhase.Afternoon => daySchedule.afternoon,
-                        DayPhase.Evening => daySchedule.evening,
-                        DayPhase.Night => daySchedule.night,
-                        _ => "Sconosciuto"
-                    };
-
-                    return FormatLocationName(rawLocation);
-                }
-
-                return "Fuori città";
+                return FormatLocationName(rawLocation);
             }
         }
 
@@ -105,6 +110,11 @@ namespace LuminaBaySimulator
             if (string.IsNullOrEmpty(raw)) return "Non specificato";
             string formatted = raw.Replace("_", " ");
             return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(formatted);
+        }
+
+        public void RefreshLocation()
+        {
+            OnPropertyChanged(nameof(CurrentLocation));
         }
     }
 
@@ -180,6 +190,23 @@ namespace LuminaBaySimulator
 
         [JsonProperty("impact")]
         public DialogueImpact? Impact { get; set; }
+
+        public string ButtonDisplay
+        {
+            get
+            {
+                if (Impact == null) return Text;
+
+                string info = "";
+
+                if (Impact.Affection > 0) info += $" [❤️ +{Impact.Affection}]";
+                else if (Impact.Affection < 0) info += $" [💔 {Impact.Affection}]";
+
+                if (Impact.Patience != 0) info += $" [⏳ {Impact.Patience:+0;-0}]";
+
+                return $"{Text}{info}";
+            }
+        }
     }
 
     public class DialogueImpact
@@ -189,5 +216,6 @@ namespace LuminaBaySimulator
 
         [JsonProperty("patience")]
         public int Patience { get; set; }
+
     }
 }

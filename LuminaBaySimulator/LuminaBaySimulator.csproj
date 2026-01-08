@@ -10,10 +10,14 @@
 
   <ItemGroup>
     <None Remove="Assets\Images\Portraits\elisa_bernardoni.png" />
+    <None Remove="char_001_elisa_bernardoni.json" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="Assets\Images\Portraits\elisa_bernardoni.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="char_001_elisa_bernardoni.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -21,12 +25,6 @@
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="char_001_elisa_bernardoni.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

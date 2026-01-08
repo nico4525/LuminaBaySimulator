@@ -32,5 +32,124 @@
 			"evening": "casa",
 			"night": "camera_sua"
 		}
+	},
+
+	"dialogues": {
+		"root": {
+			"id": "root",
+			"text": "Ehi, non ti ho mai visto in giro con questo outfit. È... interessante.",
+			"choices": [
+				{
+					"text": "Grazie! Cerco di avere uno stile unico.",
+					"next_node_id": "style_compliment",
+					"impact": {
+						"affection": 5,
+						"patience": 0
+					}
+				},
+				{
+					"text": "Non mi interessa molto la moda.",
+					"next_node_id": "style_insult",
+					"impact": {
+						"affection": -2,
+						"patience": -5
+					}
+				},
+				{
+					"text": "Sei Elisa, vero? Ho sentito parlare di te.",
+					"next_node_id": "know_me",
+					"impact": {
+						"affection": 0,
+						"patience": 0
+					}
+				}
+			]
+		},
+		"style_compliment": {
+			"id": "style_compliment",
+			"text": "Beh, almeno hai coraggio. Forse potremmo fare shopping insieme qualche volta, potrei darti qualche dritta.",
+			"choices": [
+				{
+					"text": "Mi piacerebbe molto! (Buono Zara)",
+					"next_node_id": "shopping_accept",
+					"impact": {
+						"affection": 15,
+						"patience": 5
+					}
+				},
+				{
+					"text": "No grazie, sto bene così.",
+					"next_node_id": "END",
+					"impact": {
+						"affection": 0,
+						"patience": -2
+					}
+				}
+			]
+		},
+		"style_insult": {
+			"id": "style_insult",
+			"text": "Si vede. Peccato, la prima impressione conta molto qui a Lumina Bay.",
+			"choices": [
+				{
+					"text": "Me ne ricorderò.",
+					"next_node_id": "END",
+					"impact": {
+						"affection": 0,
+						"patience": -5
+					}
+				}
+			]
+		},
+		"know_me": {
+			"id": "know_me",
+			"text": "Spero cose belle. La gente adora inventare storie su di me solo perché ho gusto.",
+			"choices": [
+				{
+					"text": "Solo cose belle, tranquilla.",
+					"next_node_id": "style_compliment",
+					"impact": {
+						"affection": 5,
+						"patience": 0
+					}
+				},
+				{
+					"text": "Dicono che sei un po' superficiale.",
+					"next_node_id": "angry_exit",
+					"impact": {
+						"affection": -10,
+						"patience": -20
+					}
+				}
+			]
+		},
+		"shopping_accept": {
+			"id": "shopping_accept",
+			"text": "Perfetto! Scrivimi più tardi. Ciao!",
+			"choices": [
+				{
+					"text": "A presto!",
+					"next_node_id": "END",
+					"impact": {
+						"affection": 0,
+						"patience": 0
+					}
+				}
+			]
+		},
+		"angry_exit": {
+			"id": "angry_exit",
+			"text": "Come ti permetti? Sparisci dalla mia vista.",
+			"choices": [
+				{
+					"text": "(Te ne vai)",
+					"next_node_id": "END",
+					"impact": {
+						"affection": 0,
+						"patience": 0
+					}
+				}
+			]
+		}
 	}
 }
