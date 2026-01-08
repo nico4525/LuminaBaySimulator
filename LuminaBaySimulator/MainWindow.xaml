@@ -56,8 +56,8 @@
                 </StackPanel>
 
                 <Border Grid.Column="1" Background="#CC000000" CornerRadius="20" 
-                    HorizontalAlignment="Center" VerticalAlignment="Center" Padding="20,5"
-                    Visibility="{Binding IsStatusVisible, Converter={StaticResource BoolToVis}}">
+                        HorizontalAlignment="Center" VerticalAlignment="Center" Padding="20,5"
+                        Visibility="{Binding IsStatusVisible, Converter={StaticResource BoolToVis}}">
                     <TextBlock Text="{Binding StatusMessage}" Foreground="#4FC3F7" FontWeight="Bold" FontSize="14">
                         <TextBlock.Effect>
                             <DropShadowEffect ShadowDepth="0" Color="#4FC3F7" BlurRadius="10"/>
@@ -79,18 +79,17 @@
 
         <Border Grid.Row="1" Background="#EEE" Padding="10">
             <DockPanel LastChildFill="False">
-                <Button DockPanel.Dock="Left" 
-                    Command="{Binding BackToMapCommand}" 
-                    Content="⬅ TORNA ALLA MAPPA" 
-                    Background="#5C6BC0" 
-                    Foreground="White" 
-                    FontWeight="Bold" 
-                    Padding="15,5">
 
+                <Button DockPanel.Dock="Left" 
+                        Command="{Binding BackToMapCommand}" 
+                        Content="⬅ TORNA ALLA MAPPA" 
+                        Background="#5C6BC0" 
+                        Foreground="White" 
+                        FontWeight="Bold" 
+                        Padding="15,5">
                     <Button.Style>
                         <Style TargetType="Button">
                             <Setter Property="Visibility" Value="Visible"/>
-
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding CurrentViewMode}" Value="Map">
                                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -108,15 +107,18 @@
 
         <Grid Grid.Row="2" Background="#F5F5F5">
 
-            <Grid Visibility="{Binding CurrentViewMode, Converter={StaticResource BoolToVis}}">
+            <Grid>
                 <Grid.Style>
                     <Style TargetType="Grid">
                         <Setter Property="Visibility" Value="Collapsed"/>
-                        <DataTrigger Binding="{Binding CurrentViewMode}" Value="Map">
-                            <Setter Property="Visibility" Value="Visible"/>
-                        </DataTrigger>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding CurrentViewMode}" Value="Map">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
                     </Style>
                 </Grid.Style>
+
                 <ItemsControl ItemsSource="{Binding AvailableLocations}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -126,7 +128,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Button Command="{Binding DataContext.TravelToLocationCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                 CommandParameter="{Binding}" Margin="10">
+                                    CommandParameter="{Binding}" Margin="10">
                                 <Border Width="180" Height="120" Background="White" CornerRadius="8" Padding="10">
                                     <StackPanel>
                                         <TextBlock Text="📍" FontSize="30" HorizontalAlignment="Center"/>
@@ -143,9 +145,11 @@
                 <Grid.Style>
                     <Style TargetType="Grid">
                         <Setter Property="Visibility" Value="Collapsed"/>
-                        <DataTrigger Binding="{Binding CurrentViewMode}" Value="LocationInside">
-                            <Setter Property="Visibility" Value="Visible"/>
-                        </DataTrigger>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding CurrentViewMode}" Value="LocationInside">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
                     </Style>
                 </Grid.Style>
 
@@ -161,8 +165,8 @@
                                         <DockPanel>
                                             <Image Source="{Binding SpritePath}" Width="50" DockPanel.Dock="Left"/>
                                             <Button Content="PARLA" DockPanel.Dock="Right" VerticalAlignment="Center"
-                                                Command="{Binding DataContext.InteractWithNpcCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                CommandParameter="{Binding}"/>
+                                                    Command="{Binding DataContext.InteractWithNpcCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    CommandParameter="{Binding}"/>
                                             <StackPanel Margin="10,0">
                                                 <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
                                                 <TextBlock Text="{Binding CurrentLocation}" FontStyle="Italic"/>
@@ -180,11 +184,14 @@
                 <Grid.Style>
                     <Style TargetType="Grid">
                         <Setter Property="Visibility" Value="Collapsed"/>
-                        <DataTrigger Binding="{Binding CurrentViewMode}" Value="Shop">
-                            <Setter Property="Visibility" Value="Visible"/>
-                        </DataTrigger>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding CurrentViewMode}" Value="Shop">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
                     </Style>
                 </Grid.Style>
+
                 <DockPanel Margin="20">
                     <TextBlock DockPanel.Dock="Top" Text="🛒 Negozio" FontSize="24" Foreground="#E65100"/>
                     <ItemsControl ItemsSource="{Binding CurrentShopInventory}">
@@ -212,9 +219,11 @@
                 <Grid.Style>
                     <Style TargetType="Grid">
                         <Setter Property="Visibility" Value="Collapsed"/>
-                        <DataTrigger Binding="{Binding CurrentViewMode}" Value="Dialogue">
-                            <Setter Property="Visibility" Value="Visible"/>
-                        </DataTrigger>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding CurrentViewMode}" Value="Dialogue">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
                     </Style>
                 </Grid.Style>
 

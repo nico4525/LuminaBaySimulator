@@ -85,9 +85,9 @@ namespace LuminaBaySimulator
 
         private void OnNewDayStarted(object? sender, EventArgs e)
         {
-            Player.Energy = PlayerStats.MaxEnergy; 
+            Player.Energy = PlayerStats.MaxEnergy;
 
-            LastActionFeedback = "È sorto un nuovo giorno! L'energia è stata ripristinata.";
+            ShowStatusMessage("È sorto un nuovo giorno! L'energia è stata ripristinata.");
         }
 
         private void RefreshCommandStates()
@@ -104,9 +104,9 @@ namespace LuminaBaySimulator
         {
             Player.Energy -= 30;
             Player.Stress += 10;
-            Player.Money += 5; 
+            Player.Money += 5;
 
-            LastActionFeedback = "Sei andato a scuola. Hai imparato qualcosa, ma che fatica!";
+            ShowStatusMessage("Sei andato a scuola. Hai imparato qualcosa, ma che fatica!");
 
             WorldTime.AdvanceTime();
         }
@@ -121,7 +121,7 @@ namespace LuminaBaySimulator
             Player.Energy -= 20;
             Player.Stress += 15; 
 
-            LastActionFeedback = "Hai studiato intensamente.";
+            ShowStatusMessage("Hai studiato intensamente.");
             WorldTime.AdvanceTime();
         }
         private bool CanStudy()
@@ -135,7 +135,7 @@ namespace LuminaBaySimulator
             Player.Energy -= 5;
             Player.Stress -= 20; 
 
-            LastActionFeedback = "Ti sei preso un momento per respirare. Lo stress diminuisce.";
+            ShowStatusMessage("Ti sei preso un momento per respirare. Lo stress diminuisce.");
             WorldTime.AdvanceTime();
         }
         private bool CanRelax()
@@ -146,7 +146,7 @@ namespace LuminaBaySimulator
         [RelayCommand]
         private void Sleep()
         {
-            LastActionFeedback = "Vai a dormire...";
+            ShowStatusMessage("Vai a dormire...");
 
             while (WorldTime.CurrentPhase != DayPhase.Night)
             {
@@ -197,7 +197,7 @@ namespace LuminaBaySimulator
 
             if (NpcsInLocation.Count == 0)
             {
-                LastActionFeedback += " Non sembra esserci nessuno qui al momento.";
+                ShowStatusMessage("Non sembra esserci nessuno qui al momento.");
             }
         }
 
@@ -213,7 +213,7 @@ namespace LuminaBaySimulator
         private void CloseShop()
         {
             CurrentViewMode = GameViewMode.LocationInside;
-            LastActionFeedback = "Hai lasciato il negozio.";
+            ShowStatusMessage("Hai lasciato il negozio.");
         }
 
         [RelayCommand]
@@ -260,7 +260,6 @@ namespace LuminaBaySimulator
             }
 
             IsDialogueActive = true;
-            LastActionFeedback = "";
             
             LoadNode("root");
         }
