@@ -56,6 +56,9 @@ namespace LuminaBaySimulator
         [JsonProperty("dialogues")]
         public Dictionary<string, DialogueNode>? Dialogues { get; set; }
 
+        [JsonProperty("special_events")]
+        public Dictionary<int, DaySchedule>? SpecialEvents { get; set; }
+
         public NpcData()
         {
             if (GameManager.Instance?.WorldTime != null)
@@ -69,57 +72,84 @@ namespace LuminaBaySimulator
             if (e.PropertyName == nameof(TimeManager.CurrentPhase) ||
                 e.PropertyName == nameof(TimeManager.CurrentDay))
             {
-                OnPropertyChanged(nameof(CurrentLocation));
+                OnPropertyChanged(nameof(CurrentLocationUiString));
             }
         }
 
-        public string CurrentLocation
+        public string CurrentLocationUiString
         {
             get
             {
-                if (Schedule == null || Schedule.Count == 0)
-                    return "Nessuna Schedule";
+                if (GameManager.Instance == null) return "Loading...";
 
-                if (GameManager.Instance == null) return "GameManager Error";
+                string locationId = GetCurrentLocationId(
+                    GameManager.Instance.CurrentWeather,
+                    GameManager.Instance.WorldTime.CurrentDay,
+                    GameManager.Instance.WorldTime.CurrentPhase,
+                    GameManager.Instance.WorldTime.CurrentDayOfWeek
+                );
 
-                var currentDayEnum = GameManager.Instance.WorldTime.CurrentDayOfWeek;
-
-                string currentDayKey = currentDayEnum.ToString().ToLowerInvariant();
-
-                if (!Schedule.TryGetValue(currentDayKey, out var daySchedule))
-                {
-                    if (!Schedule.TryGetValue("default", out daySchedule) &&
-                        !Schedule.TryGetValue("monday", out daySchedule))
-                    {
-                        return "Riposo (No Schedule)";
-                    }
-                }
-
-                var phase = GameManager.Instance.WorldTime.CurrentPhase;
-
-                string? rawLocation = phase switch
-                {
-                    DayPhase.Morning => daySchedule.morning,
-                    DayPhase.Afternoon => daySchedule.afternoon,
-                    DayPhase.Evening => daySchedule.evening,
-                    DayPhase.Night => daySchedule.night,
-                    _ => "Sconosciuto"
-                };
-
-                return FormatLocationName(rawLocation);
+                return FormatLocationName(locationId);
             }
         }
 
-        private string FormatLocationName(string? raw)
+        /// <summary>
+        /// Logica Master per determinare dove si trova l'NPC (Task 3)
+        /// </summary>
+        public string GetCurrentLocationId(string weather, int currentDay, DayPhase phase, DayOfWeek dayOfWeek)
         {
-            if (string.IsNullOrEmpty(raw)) return "Non specificato";
-            string formatted = raw.Replace("_", " ");
-            return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(formatted);
+            if (Schedule == null) return "";
+
+            if (SpecialEvents != null && SpecialEvents.ContainsKey(currentDay))
+            {
+                string? eventLoc = GetLocationFromSchedule(SpecialEvents[currentDay], phase);
+                if (!string.IsNullOrEmpty(eventLoc)) return eventLoc;
+            }
+
+            bool isRainy = weather.ToLower().Contains("rain");
+            if (isRainy && Schedule.ContainsKey("rainy"))
+            {
+                string? rainyLoc = GetLocationFromSchedule(Schedule["rainy"], phase);
+                if (!string.IsNullOrEmpty(rainyLoc)) return rainyLoc;
+            }
+
+            string dayKey = dayOfWeek.ToString().ToLowerInvariant();
+            DaySchedule? todaySchedule = null;
+
+            if (Schedule.ContainsKey(dayKey))
+                todaySchedule = Schedule[dayKey];
+            else if (Schedule.ContainsKey("default"))
+                todaySchedule = Schedule["default"];
+            else if (Schedule.ContainsKey("monday")) 
+                todaySchedule = Schedule["monday"];
+
+            if (todaySchedule == null) return "";
+
+            return GetLocationFromSchedule(todaySchedule, phase) ?? "";
+        }
+
+        private string? GetLocationFromSchedule(DaySchedule schedule, DayPhase phase)
+        {
+            return phase switch
+            {
+                DayPhase.Morning => schedule.Morning,
+                DayPhase.Afternoon => schedule.Afternoon,
+                DayPhase.Evening => schedule.Evening,
+                DayPhase.Night => schedule.Night,
+                _ => null
+            };
+        }
+
+        private string FormatLocationName(string? rawId)
+        {
+            if (string.IsNullOrEmpty(rawId)) return "Sconosciuto";
+            var locObj = GameManager.Instance.Locations.Find(l => l.Id == rawId);
+            return locObj != null ? locObj.Name : rawId;
         }
 
         public void RefreshLocation()
         {
-            OnPropertyChanged(nameof(CurrentLocation));
+            OnPropertyChanged(nameof(CurrentLocationUiString));
         }
     }
 
@@ -167,10 +197,17 @@ namespace LuminaBaySimulator
 
     public class DaySchedule
     {
-        public string? morning { get; set; }
-        public string? afternoon { get; set; }
-        public string? evening { get; set; }
-        public string? night { get; set; }
+        [JsonProperty("morning")]  
+        public string? Morning { get; set; }
+
+        [JsonProperty("afternoon")] 
+        public string? Afternoon { get; set; }
+
+        [JsonProperty("evening")] 
+        public string? Evening { get; set; }
+
+        [JsonProperty("night")] 
+        public string? Night { get; set; }
     }
 
     public class DialogueNode
@@ -210,6 +247,9 @@ namespace LuminaBaySimulator
 
         [JsonProperty("item_id")]
         public string? ItemId { get; set; }
+
+        [JsonProperty("story_flags")]
+        public Dictionary<string, bool>? StoryFlagsCondition { get; set; }
     }
 
     public class DialogueImpact
@@ -219,6 +259,9 @@ namespace LuminaBaySimulator
 
         [JsonProperty("patience")]
         public int Patience { get; set; }
+
+        [JsonProperty("set_story_flags")]
+        public Dictionary<string, bool>? SetStoryFlags { get; set; }
 
     }
 }

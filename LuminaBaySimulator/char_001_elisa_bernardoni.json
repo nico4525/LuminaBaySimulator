@@ -1,85 +1,63 @@
 ﻿{
 	"npc_id": "char_001",
 	"name": "Elisa Bernardoni",
-	"age": 15,
-	"date_of_birth": "2009-10-11T00:00:00",
-	"min_player_age": 14,
-	"gender": "female",
-	"hex_color": "#D32F2F",
-	"sprite_path": "Assets/Images/Portraits/elisa_bernardoni.png",
-	"description": "Una ragazza carismatica che ama la moda. Indossa spesso abiti rossi che risaltano i suoi capelli scuri ondulati. Le sue unghie sono sempre impeccabili.",
-	"social_groups": [ "popolari", "fashioniste" ],
-	"romance_option": true,
-
-	"stats": {
-		"base_patience": 70,
-		"affection_max": 100,
-		"affection_current": 0,
-		"jealousy_factor": 0.6
-	},
-
-	"preferences": {
-		"favorite_foods": [ "sushi", "poke_bowl", "fragole" ],
-		"hobbies": [ "instagram", "shopping", "make_up" ],
-		"gifts_loved": [ "accessori_oro", "buono_zara", "cover_glitter" ],
-		"gifts_hated": [ "libri_antichi", "insetti", "attrezzatura_campeggio" ]
-	},
-
 	"schedule": {
 		"monday": {
+			"morning": "liceo_newton_classe_2B",
+			"afternoon": "parco",
+			"evening": "casa",
+			"night": "camera_sua"
+		},
+		"rainy": {
 			"morning": "liceo_newton_classe_2B",
 			"afternoon": "centro_commerciale",
 			"evening": "casa",
 			"night": "camera_sua"
 		}
 	},
-
 	"dialogues": {
 		"root": {
 			"id": "root",
-			"text": "Uff... oggi è una giornata terribile. Ho litigato con Giulia e ho bisogno di zuccheri.",
+			"text": "Ehi tu! Non ti ho mai visto da queste parti.",
 			"choices": [
 				{
-					"text": "Mi dispiace, spero le cose migliorino.",
-					"next_node_id": "sad_end",
+					"text": "Piacere, mi sono appena trasferito.",
+					"next_node_id": "intro_nice",
 					"impact": {
-						"affection": 2,
-						"patience": 0
+						"affection": 5,
+						"set_story_flags": {
+							"met_elisa": true
+						}
 					}
 				},
 				{
-					"text": "Ho comprato questi per te! (Dai Cioccolatini)",
-					"next_node_id": "gift_reaction",
-					"impact": {
-						"affection": 20,
-						"patience": 10
-					},
-					"requirements": {
-						"item_id": "cioccolatini"
-					}
-				}
-			]
-		},
-		"gift_reaction": {
-			"id": "gift_reaction",
-			"text": "Oddio! Sono i miei preferiti! Come sapevi che ne avevo bisogno? Sei il migliore!",
-			"choices": [
-				{
-					"text": "L'intuito non sbaglia mai.",
+					"text": "Sparisci.",
 					"next_node_id": "END",
 					"impact": {
-						"affection": 5,
-						"patience": 5
+						"affection": -10,
+						"set_story_flags": {
+							"elisa_hates_player": true
+						}
 					}
 				}
 			]
 		},
-		"sad_end": {
-			"id": "sad_end",
-			"text": "Sì, vabbè. Ciao.",
+		"intro_nice": {
+			"id": "intro_nice",
+			"text": "Oh, capisco. Beh, benvenuto a Lumina Bay.",
 			"choices": [
 				{
-					"text": "Ciao.",
+					"text": "Ti va di studiare insieme? (Richiede Intelligenza 10)",
+					"next_node_id": "study_date",
+					"requirements": {
+						"intelligence": 10,
+						"story_flags": {
+							"met_elisa": true
+						}
+					}
+				},
+				{
+					"text": "Grazie, ci vediamo.",
 					"next_node_id": "END"
 				}
 			]

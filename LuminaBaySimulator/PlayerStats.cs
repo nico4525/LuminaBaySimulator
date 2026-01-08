@@ -27,6 +27,8 @@ namespace LuminaBaySimulator
         public const int MaxEnergy = 100;
         public const int MaxStress = 100;
 
+        public Dictionary<string, bool> StoryFlags { get; set; } = new Dictionary<string, bool>();
+
         public ObservableCollection<GameItem> Inventory { get; } = new ObservableCollection<GameItem>();
 
         public PlayerStats()
@@ -68,6 +70,35 @@ namespace LuminaBaySimulator
         public bool HasItem(string itemId)
         {
             return Inventory.Any(i => i.Id == itemId);
+        }
+
+        /// <summary>
+        /// Imposta un flag narrativo. Se esiste lo aggiorna, se no lo crea.
+        /// </summary>
+        public void SetFlag(string key, bool value)
+        {
+            if (StoryFlags.ContainsKey(key))
+            {
+                StoryFlags[key] = value;
+            }
+            else
+            {
+                StoryFlags.Add(key, value);
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[MEMORY] Flag '{key}' impostato a {value}");
+        }
+
+        /// <summary>
+        /// Verifica il valore di un flag. Di default è false se non esiste.
+        /// </summary>
+        public bool CheckFlag(string key)
+        {
+            if (StoryFlags.TryGetValue(key, out bool value))
+            {
+                return value;
+            }
+            return false;
         }
     }
 }

@@ -16,7 +16,9 @@ namespace LuminaBaySimulator
         public int Energy { get; set; }
         public int Stress { get; set; }
         public int Intelligence { get; set; }
-        public List<string> InventoryItemIds { get; set; } = new List<string>(); 
+        public List<string> InventoryItemIds { get; set; } = new List<string>();
+
+        public Dictionary<string, bool> StoryFlags { get; set; } = new Dictionary<string, bool>();
 
         public int CurrentDay { get; set; }
         public DayPhase CurrentPhase { get; set; }
@@ -36,6 +38,7 @@ namespace LuminaBaySimulator
 
         public List<GameItem> ShopItems { get; private set; }
 
+        public string CurrentWeather { get; set; } = "Sunny";
         private string SaveFilePath => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "savegame.json");
 
         private GameManager()
@@ -47,6 +50,37 @@ namespace LuminaBaySimulator
 
             InitializeLocations();
             LoadShopItems();
+        }
+
+        /// <summary>
+        /// Verifica se il giocatore soddisfa tutti i requisiti per una scelta di dialogo.
+        /// </summary>
+        public bool CheckRequirements(DialogueRequirements? reqs)
+        {
+            if (reqs == null) return true;
+
+            if (reqs.Money.HasValue && Player.Money < reqs.Money.Value) return false;
+            if (reqs.Intelligence.HasValue && Player.Intelligence < reqs.Intelligence.Value) return false;
+            if (reqs.Energy.HasValue && Player.Energy < reqs.Energy.Value) return false;
+
+            if (!string.IsNullOrEmpty(reqs.ItemId))
+            {
+                if (!Player.HasItem(reqs.ItemId)) return false;
+            }
+
+            if (reqs.StoryFlagsCondition != null)
+            {
+                foreach (var kvp in reqs.StoryFlagsCondition)
+                {
+                    string flagKey = kvp.Key;
+                    bool requiredValue = kvp.Value;
+
+                    if (Player.CheckFlag(flagKey) != requiredValue)
+                        return false;
+                }
+            }
+
+            return true;
         }
 
         public void LoadShopItems()
@@ -98,38 +132,19 @@ namespace LuminaBaySimulator
         /// </summary>
         public List<NpcData> GetNpcsAtLocation(string locationId)
         {
-            var currentDayOfWeek = WorldTime.CurrentDayOfWeek.ToString().ToLower(); 
-            var currentPhase = WorldTime.CurrentPhase;
-
             List<NpcData> presentNpcs = new List<NpcData>();
+
+            string weather = CurrentWeather;
+            int dayNumber = WorldTime.CurrentDay;
+            DayPhase phase = WorldTime.CurrentPhase;
+            DayOfWeek dayOfWeek = WorldTime.CurrentDayOfWeek;
 
             foreach (var npc in AllNpcs)
             {
-                if (npc.Schedule == null) continue;
+                string currentLocationOfNpc = npc.GetCurrentLocationId(weather, dayNumber, phase, dayOfWeek);
 
-                DaySchedule? todaySchedule = null;
-
-                if (npc.Schedule.ContainsKey(currentDayOfWeek))
-                {
-                    todaySchedule = npc.Schedule[currentDayOfWeek];
-                }
-                else if (npc.Schedule.ContainsKey("default"))
-                {
-                    todaySchedule = npc.Schedule["default"];
-                }
-
-                if (todaySchedule == null) continue;
-
-                string? scheduledLocationId = currentPhase switch
-                {
-                    DayPhase.Morning => todaySchedule.morning,
-                    DayPhase.Afternoon => todaySchedule.afternoon,
-                    DayPhase.Evening => todaySchedule.evening,
-                    DayPhase.Night => todaySchedule.night,
-                    _ => null
-                };
-
-                if (!string.IsNullOrEmpty(scheduledLocationId) && scheduledLocationId.Equals(locationId, StringComparison.InvariantCultureIgnoreCase))
+                if (!string.IsNullOrEmpty(currentLocationOfNpc) &&
+                    currentLocationOfNpc.Equals(locationId, StringComparison.InvariantCultureIgnoreCase))
                 {
                     presentNpcs.Add(npc);
                 }

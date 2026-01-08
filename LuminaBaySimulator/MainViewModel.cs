@@ -282,6 +282,14 @@ namespace LuminaBaySimulator
                 ShowStatusMessage($"Effetto: Affetto {choice.Impact.Affection:+0;-0}, Pazienza {choice.Impact.Patience:+0;-0}");
             }
 
+            if (choice.Impact.SetStoryFlags != null)
+            {
+                foreach(var flag in choice.Impact.SetStoryFlags)
+                {
+                    GameManager.Instance.Player.SetFlag(flag.Key, flag.Value);
+                }
+            }
+
             if (string.IsNullOrEmpty(choice.NextNodeId) || choice.NextNodeId.ToUpper() == "END")
             {
                 CurrentViewMode = GameViewMode.LocationInside;
@@ -296,25 +304,7 @@ namespace LuminaBaySimulator
 
         private bool CanSelectChoice(DialogueChoice choice)
         {
-            if (choice == null) return false;
-            if (choice.Requirements == null) return true;
-
-            bool meetsMoney = true;
-            bool meetsIntel = true;
-            bool meetsItem = true;
-
-            if (choice.Requirements.Money.HasValue)
-                meetsMoney = Player.Money >= choice.Requirements.Money.Value;
-
-            if (choice.Requirements.Intelligence.HasValue)
-                meetsIntel = Player.Intelligence >= choice.Requirements.Intelligence.Value; 
-
-            if (!string.IsNullOrEmpty(choice.Requirements.ItemId))
-            {
-                meetsItem = Player.HasItem(choice.Requirements.ItemId);
-            }
-
-            return meetsMoney && meetsIntel && meetsItem;
+            return GameManager.Instance.CheckRequirements(choice.Requirements);
         }
 
         private void LoadNode(string nodeId)
