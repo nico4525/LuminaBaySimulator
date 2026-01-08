@@ -98,86 +98,205 @@
         </Border>
 
         <Grid Grid.Row="2" Margin="20">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1.5*"/>
-                <ColumnDefinition Width="3.5*"/>
-            </Grid.ColumnDefinitions>
+            <Grid.Resources>
+                <Style x:Key="CardStyle" TargetType="Border">
+                    <Setter Property="Background" Value="White"/>
+                    <Setter Property="CornerRadius" Value="8"/>
+                    <Setter Property="Padding" Value="10"/>
+                    <Setter Property="Margin" Value="5"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect BlurRadius="10" Opacity="0.1" ShadowDepth="2"/>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Grid.Resources>
 
-            <Border Grid.Column="0" BorderBrush="#DDD" BorderThickness="1" CornerRadius="5" Background="White" Margin="0,0,20,0">
-                <Grid>
+            <Grid Background="#F0F0F0">
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding CurrentViewMode}" Value="Map">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+
+                <ScrollViewer>
+                    <ItemsControl ItemsSource="{Binding AvailableLocations}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Command="{Binding DataContext.TravelToLocationCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                CommandParameter="{Binding}"
+                                Background="Transparent" BorderThickness="0" Margin="10">
+                                    <Border Style="{StaticResource CardStyle}" Width="200" Height="150" Background="White">
+                                        <StackPanel>
+                                            <Border Height="80" Background="#EEE" CornerRadius="4" Margin="0,0,0,10">
+                                                <TextBlock Text="🏠" FontSize="40" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center"/>
+                                            <TextBlock Text="{Binding Description}" FontSize="10" TextWrapping="Wrap" HorizontalAlignment="Center" Foreground="#777" Margin="0,5,0,0"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+
+            <Grid>
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding CurrentViewMode}" Value="LocationInside">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0" Background="White" Padding="20" BorderBrush="#EEE" BorderThickness="0,0,0,1">
+                    <DockPanel>
+                        <Button DockPanel.Dock="Left" Content="⬅ Torna alla Mappa" Command="{Binding BackToMapCommand}" Padding="10,5"/>
+                        <TextBlock Text="{Binding CurrentLocation.Name}" FontSize="24" FontWeight="Bold" HorizontalAlignment="Right" Foreground="#333"/>
+                    </DockPanel>
+                </Border>
+
+                <ScrollViewer Grid.Row="1" Margin="10">
+                    <ItemsControl ItemsSource="{Binding NpcsInLocation}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Command="{Binding DataContext.InteractWithNpcCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                CommandParameter="{Binding}"
+                                HorizontalContentAlignment="Stretch"
+                                Background="Transparent" BorderThickness="0" Margin="0,5">
+                                    <Border Style="{StaticResource CardStyle}" Height="80">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Image Grid.Column="0" Source="{Binding SpritePath}" Width="60" Height="60" Stretch="UniformToFill"/>
+
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="15,0">
+                                                <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="18" Foreground="{Binding HexColor}"/>
+                                                <TextBlock Text="{Binding SocialGroups[0]}" FontSize="12" Foreground="#888"/>
+                                            </StackPanel>
+
+                                            <Button Grid.Column="2"
+                                                    Command="{Binding DataContext.InteractWithNpcCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    CommandParameter="{Binding}"
+                                                    Background="Transparent"
+                                                    BorderThickness="0"
+                                                    Cursor="Hand"
+                                                    VerticalAlignment="Center"
+                                                    Margin="0,0,10,0">
+                                                <Button.Content>
+                                                    <TextBlock Text="💬 PARLA" 
+                                                        Foreground="#3F51B5" 
+                                                        FontWeight="Bold" 
+                                                        FontSize="14"/>
+                                                </Button.Content>
+
+                                                <Button.Style>
+                                                    <Style TargetType="Button">
+                                                        <Setter Property="Template">
+                                                            <Setter.Value>
+                                                                <ControlTemplate TargetType="Button">
+                                                                    <Border Background="{TemplateBinding Background}">
+                                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                    </Border>
+                                                                </ControlTemplate>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Opacity" Value="0.7"/>
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
+                                        </Grid>
+                                    </Border>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
+                <TextBlock Grid.Row="1" Text="Non c'è nessuno qui in questo momento..." 
+                   HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#999" FontStyle="Italic"
+                   Visibility="{Binding NpcsInLocation.Count, Converter={StaticResource BoolToVis}, ConverterParameter=Inverse}"/>
+            </Grid>
+
+            <Grid>
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding CurrentViewMode}" Value="Dialogue">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.5*"/>
+                    <ColumnDefinition Width="3.5*"/>
+                </Grid.ColumnDefinitions>
+
+                <Image Grid.Column="0" Source="{Binding CurrentNpc.SpritePath}" Stretch="UniformToFill" VerticalAlignment="Bottom"/>
+
+                <Grid Grid.Column="1" Margin="20">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <Image Grid.Row="0" Source="{Binding CurrentNpc.SpritePath}" Stretch="UniformToFill" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-
-                    <Button Content="💬 PARLA" 
-                            Command="{Binding StartDialogueCommand}"
-                            VerticalAlignment="Bottom" HorizontalAlignment="Center"
-                            Margin="0,0,0,20" Width="120" Height="40"
-                            Background="#3F51B5" Foreground="White" FontWeight="Bold">
-                        <Button.Style>
-                            <Style TargetType="Button">
-                                <Setter Property="Visibility" Value="Visible"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsDialogueActive}" Value="True">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
-                </Grid>
-            </Border>
-
-            <ScrollViewer Grid.Column="1">
-                <StackPanel>
-                    <TextBlock Text="{Binding CurrentNpc.Name}" FontSize="36" FontWeight="Bold" Foreground="{Binding CurrentNpc.HexColor}" Margin="0,0,0,10">
-                        <TextBlock.Effect>
-                            <DropShadowEffect Color="Black" BlurRadius="2" ShadowDepth="1" Opacity="0.3"/>
-                        </TextBlock.Effect>
-                    </TextBlock>
-
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
-                        <Border Background="#333" CornerRadius="4" Padding="8,4" Margin="0,0,10,0">
-                            <TextBlock Text="{Binding CurrentNpc.Age, StringFormat='Età: {0}'}" Foreground="White" FontWeight="SemiBold"/>
-                        </Border>
-                        <Border Background="{Binding CurrentNpc.HexColor}" CornerRadius="4" Padding="8,4" Opacity="0.8">
-                            <TextBlock Text="{Binding CurrentNpc.SocialGroups[0], FallbackValue='Nessun Gruppo'}" Foreground="White" FontWeight="SemiBold"/>
-                        </Border>
+                    <StackPanel Grid.Row="0">
+                        <TextBlock Text="{Binding CurrentNpc.Name}" FontSize="30" FontWeight="Bold" Foreground="{Binding CurrentNpc.HexColor}"/>
+                        <ProgressBar Value="{Binding CurrentNpc.Stats.CurrentAffection}" Maximum="100" Height="10" Width="150" HorizontalAlignment="Left" Margin="0,5"/>
                     </StackPanel>
 
-                    <Border Background="#E8EAF6" BorderBrush="#3F51B5" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,20">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="📍 Posizione Attuale:" FontWeight="Bold" Foreground="#3F51B5" Margin="0,0,10,0"/>
-                            <TextBlock Text="{Binding CurrentNpc.CurrentLocation}" FontWeight="SemiBold" Foreground="#333"/>
-                        </StackPanel>
-                    </Border>
-
-                    <Border Background="#FFF3E0" BorderBrush="#FF9800" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,20">
+                    <Border Grid.Row="1" Background="White" CornerRadius="10" Padding="20">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="20" Opacity="0.2"/>
+                        </Border.Effect>
                         <StackPanel>
-                            <TextBlock Text="DIARIO DI GIOCO" FontWeight="Bold" Foreground="#F57C00" FontSize="10"/>
-                            <TextBlock Text="{Binding LastActionFeedback}" Foreground="#333" FontStyle="Italic" TextWrapping="Wrap"/>
+                            <TextBlock Text="{Binding CurrentDialogueNode.Text}" FontSize="18" TextWrapping="Wrap" Margin="0,0,0,20"/>
+
+                            <ItemsControl ItemsSource="{Binding CurrentDialogueNode.Choices}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Content="{Binding Text}" 
+                                        Command="{Binding DataContext.SelectChoiceCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                        CommandParameter="{Binding}"
+                                        Margin="0,5" Padding="10" Background="#F5F5F5"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
                         </StackPanel>
                     </Border>
-
-                    <Grid Margin="0,0,0,5">
-                        <TextBlock Text="PAZIENZA" FontWeight="Bold" Foreground="#444" HorizontalAlignment="Left"/>
-                        <TextBlock Text="{Binding CurrentNpc.Stats.CurrentPatience, StringFormat='{}{0} / 100'}" FontWeight="Bold" Foreground="#444" HorizontalAlignment="Right"/>
-                    </Grid>
-                    <ProgressBar Value="{Binding CurrentNpc.Stats.CurrentPatience}" Maximum="100" Height="15" Foreground="{Binding CurrentNpc.HexColor}" Background="#E0E0E0" BorderThickness="0" Margin="0,0,0,15"/>
-
-                    <Grid Margin="0,0,0,5">
-                        <TextBlock Text="AFFETTO (CUORI)" FontWeight="Bold" Foreground="#E91E63" HorizontalAlignment="Left"/>
-                        <TextBlock Text="{Binding CurrentNpc.Stats.CurrentAffection, StringFormat='{}{0}'}" FontWeight="Bold" Foreground="#E91E63" HorizontalAlignment="Right"/>
-                    </Grid>
-                    <ProgressBar Value="{Binding CurrentNpc.Stats.CurrentAffection}" Maximum="{Binding CurrentNpc.Stats.MaxAffection}" Height="15" Foreground="#E91E63" Background="#E0E0E0" BorderThickness="0" Margin="0,0,0,20"/>
-
-                    <TextBlock Text="BIO" FontWeight="Bold" Foreground="#666" Margin="0,0,0,5"/>
-                    <TextBlock Text="{Binding CurrentNpc.Description}" TextWrapping="Wrap" FontSize="14" Foreground="#333" LineHeight="22" Margin="0,0,0,30"/>
-                </StackPanel>
-            </ScrollViewer>
+                </Grid>
+            </Grid>
         </Grid>
 
         <Border Grid.Row="0" Grid.RowSpan="3" Background="#AA000000" 

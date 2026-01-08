@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,10 +10,28 @@ using System.Windows;
 
 namespace LuminaBaySimulator
 {
+    public enum GameViewMode
+    {
+        Map,           
+        LocationInside, 
+        Dialogue        
+    }
+
     public partial class MainViewModel : ObservableObject
     {
         public TimeManager WorldTime => GameManager.Instance.WorldTime;
         public PlayerStats Player => GameManager.Instance.Player;
+
+        [ObservableProperty]
+        private GameViewMode _currentViewMode = GameViewMode.Map;
+
+        public ObservableCollection<GameLocation> AvailableLocations { get; } = new ObservableCollection<GameLocation>(GameManager.Instance.Locations);
+
+        [ObservableProperty]
+        private GameLocation? _currentLocation;
+
+        [ObservableProperty]
+        private ObservableCollection<NpcData> _npcsInLocation = new ObservableCollection<NpcData>();
 
         [ObservableProperty]
         private NpcData? _currentNpc;
@@ -32,13 +51,20 @@ namespace LuminaBaySimulator
 
             GameManager.Instance.WorldTime.NewDayStarted += OnNewDayStarted;
 
+            GameManager.Instance.WorldTime.PropertyChanged += (s, e) =>
+            {
+                RefreshCommandStates();
+                if (CurrentViewMode == GameViewMode.LocationInside && CurrentLocation != null)
+                {
+                    RefreshNpcsInLocation();
+                }
+            };
+
             GameManager.Instance.Player.PropertyChanged += (s, e) =>
             {
                 RefreshCommandStates();
                 SelectChoiceCommand.NotifyCanExecuteChanged();
             };
-
-            GameManager.Instance.WorldTime.PropertyChanged += (s, e) => RefreshCommandStates();
 
             CurrentNpc = GameManager.Instance.AllNpcs.FirstOrDefault();
             if (CurrentNpc != null)
@@ -128,6 +154,63 @@ namespace LuminaBaySimulator
         }
 
         [RelayCommand]
+        private void TravelToLocation(GameLocation location)
+        {
+            if (location == null) return;
+
+            // TODO: Qui potresti aggiungere un costo in energia per lo spostamento
+            // Player.Energy -= 5; 
+
+            CurrentLocation = location;
+            CurrentViewMode = GameViewMode.LocationInside;
+            LastActionFeedback = $"Sei arrivato a: {location.Name}.";
+
+            RefreshNpcsInLocation();
+        }
+
+        [RelayCommand]
+        private void BackToMap()
+        {
+            CurrentViewMode = GameViewMode.Map;
+            CurrentLocation = null;
+            CurrentNpc = null;
+            LastActionFeedback = "Stai guardando la mappa della città.";
+        }
+
+        private void RefreshNpcsInLocation()
+        {
+            if (CurrentLocation == null) return;
+
+            var npcs = GameManager.Instance.GetNpcsAtLocation(CurrentLocation.Id);
+            NpcsInLocation.Clear();
+            foreach (var npc in npcs)
+            {
+                NpcsInLocation.Add(npc);
+            }
+
+            if (NpcsInLocation.Count == 0)
+            {
+                LastActionFeedback += " Non sembra esserci nessuno qui al momento.";
+            }
+        }
+
+        private void InteractWithNpc(NpcData npc)
+        {
+            if (npc == null) return;
+
+            CurrentNpc = npc; 
+
+            if (CurrentNpc.Dialogues == null || !CurrentNpc.Dialogues.ContainsKey("root"))
+            {
+                MessageBox.Show("Questo personaggio è timido (nessun dialogo).");
+                return;
+            }
+
+            CurrentViewMode = GameViewMode.Dialogue; 
+            LoadNode("root");
+        }
+
+        [RelayCommand]
         private void StartDialogue()
         {
             if (CurrentNpc?.Dialogues == null || !CurrentNpc.Dialogues.ContainsKey("root"))
@@ -162,8 +245,9 @@ namespace LuminaBaySimulator
 
             if (string.IsNullOrEmpty(choice.NextNodeId) || choice.NextNodeId.ToUpper() == "END")
             {
-                IsDialogueActive = false;
+                CurrentViewMode = GameViewMode.LocationInside;
                 CurrentDialogueNode = null;
+                LastActionFeedback = "La conversazione è terminata.";
             }
             else
             {

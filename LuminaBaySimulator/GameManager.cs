@@ -19,12 +19,72 @@ namespace LuminaBaySimulator
 
         public PlayerStats Player { get; private set; }
 
+        public List<GameLocation> Locations { get; private set; }
+
         private GameManager()
         {
             AllNpcs = new List<NpcData>();
             WorldTime = new TimeManager();
-
             Player = new PlayerStats();
+
+            InitializeLocations();
+        }
+
+        private void InitializeLocations()
+        {
+            
+            Locations = new List<GameLocation>
+            {
+                new GameLocation { Id = "liceo_newton_classe_2B", Name = "Liceo Newton", Description = "Il luogo dove studi (e soffri).", ImagePath = "/Assets/Images/Locations/school.png" },
+                new GameLocation { Id = "centro_commerciale", Name = "Centro Commerciale", Description = "Negozi, fast food e posti dove spendere soldi.", ImagePath = "/Assets/Images/Locations/mall.png" },
+                new GameLocation { Id = "parco", Name = "Parco Cittadino", Description = "Aria fresca e relax.", ImagePath = "/Assets/Images/Locations/park.png" },
+                new GameLocation { Id = "casa", Name = "Casa Tua", Description = "Dolce casa.", ImagePath = "/Assets/Images/Locations/home.png" }
+            };
+        }
+
+        /// <summary>
+        /// Restituisce la lista degli NPC che si trovano in un dato luogo in questo momento.
+        /// </summary>
+        public List<NpcData> GetNpcsAtLocation(string locationId)
+        {
+            var currentDayOfWeek = WorldTime.CurrentDayOfWeek.ToString().ToLower(); 
+            var currentPhase = WorldTime.CurrentPhase;
+
+            List<NpcData> presentNpcs = new List<NpcData>();
+
+            foreach (var npc in AllNpcs)
+            {
+                if (npc.Schedule == null) continue;
+
+                DaySchedule? todaySchedule = null;
+
+                if (npc.Schedule.ContainsKey(currentDayOfWeek))
+                {
+                    todaySchedule = npc.Schedule[currentDayOfWeek];
+                }
+                else if (npc.Schedule.ContainsKey("default"))
+                {
+                    todaySchedule = npc.Schedule["default"];
+                }
+
+                if (todaySchedule == null) continue;
+
+                string? scheduledLocationId = currentPhase switch
+                {
+                    DayPhase.Morning => todaySchedule.morning,
+                    DayPhase.Afternoon => todaySchedule.afternoon,
+                    DayPhase.Evening => todaySchedule.evening,
+                    DayPhase.Night => todaySchedule.night,
+                    _ => null
+                };
+
+                if (!string.IsNullOrEmpty(scheduledLocationId) && scheduledLocationId.Equals(locationId, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    presentNpcs.Add(npc);
+                }
+            }
+
+            return presentNpcs;
         }
 
         public void LoadAllNpcs()
