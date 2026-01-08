@@ -52,6 +52,9 @@ namespace LuminaBaySimulator
         [JsonProperty("schedule")]
         public Dictionary<string, DaySchedule>? Schedule { get; set; }
 
+        [JsonProperty("dialogues")]
+        public Dictionary<string, DialogueNode>? Dialogues { get; set; }
+
         public NpcData()
         {
             if (GameManager.Instance?.WorldTime != null)
@@ -153,5 +156,38 @@ namespace LuminaBaySimulator
         public string? afternoon { get; set; }
         public string? evening { get; set; }
         public string? night { get; set; }
+    }
+
+    public class DialogueNode
+    {
+        [JsonProperty("id")]
+        public string Id { get; set; } = string.Empty;
+
+        [JsonProperty("text")]
+        public string Text { get; set; } = string.Empty;
+
+        [JsonProperty("choices")]
+        public List<DialogueChoice> Choices { get; set; } = new List<DialogueChoice>();
+    }
+
+    public class DialogueChoice
+    {
+        [JsonProperty("text")]
+        public string Text { get; set; } = string.Empty;
+
+        [JsonProperty("next_node_id")]
+        public string NextNodeId { get; set; } = "END"; 
+
+        [JsonProperty("impact")]
+        public DialogueImpact? Impact { get; set; }
+    }
+
+    public class DialogueImpact
+    {
+        [JsonProperty("affection")]
+        public int Affection { get; set; }
+
+        [JsonProperty("patience")]
+        public int Patience { get; set; }
     }
 }

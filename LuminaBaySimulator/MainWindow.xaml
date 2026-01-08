@@ -5,12 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LuminaBaySimulator"
         mc:Ignorable="d"
-        Title="Lumina Bay Simulator - Character Viewer (MVVM)" Height="550" Width="850"
+        Title="Lumina Bay Simulator - Character Viewer (MVVM)" Height="600" Width="900"
         Background="#F0F0F0">
 
     <d:Window.DataContext>
         <local:MainViewModel/>
     </d:Window.DataContext>
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </Window.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -23,7 +27,6 @@
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock Text="{Binding WorldTime.CurrentDay, StringFormat='Giorno: {0}'}" 
                                Foreground="White" FontSize="20" FontWeight="Bold" Margin="0,0,20,0"/>
-
                     <TextBlock Text="{Binding WorldTime.LocalizedPhase, StringFormat='Fase: {0}'}" 
                                Foreground="#AAA" FontSize="20" VerticalAlignment="Center"/>
                 </StackPanel>
@@ -43,11 +46,19 @@
             </Grid.ColumnDefinitions>
 
             <Border Grid.Column="0" BorderBrush="Gray" BorderThickness="1" CornerRadius="5" Background="White" Margin="0,0,20,0">
-                <Image Source="{Binding CurrentNpc.SpritePath}" Stretch="UniformToFill" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                <Grid>
+                    <Image Source="{Binding CurrentNpc.SpritePath}" Stretch="UniformToFill" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+
+                    <Button Content="💬 PARLA" 
+                            Command="{Binding StartDialogueCommand}"
+                            VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                            Margin="0,0,0,20" Width="120" Height="40"
+                            Background="#3F51B5" Foreground="White" FontWeight="Bold"
+                            Visibility="{Binding IsDialogueActive, Converter={StaticResource BoolToVis}, ConverterParameter=Inverse}"/>
+                </Grid>
             </Border>
 
             <StackPanel Grid.Column="1">
-
                 <TextBlock Text="{Binding CurrentNpc.Name}" FontSize="36" FontWeight="Bold" Foreground="{Binding CurrentNpc.HexColor}" Margin="0,0,0,10">
                     <TextBlock.Effect>
                         <DropShadowEffect Color="Black" BlurRadius="2" ShadowDepth="1" Opacity="0.3"/>
@@ -56,35 +67,82 @@
 
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
                     <Border Background="#333" CornerRadius="4" Padding="8,4" Margin="0,0,10,0">
-                        <TextBlock Text="{Binding CurrentNpc.Age, StringFormat='Età: {0}'}" 
-                                   Foreground="White" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding CurrentNpc.Age, StringFormat='Età: {0}'}" Foreground="White" FontWeight="SemiBold"/>
                     </Border>
                     <Border Background="{Binding CurrentNpc.HexColor}" CornerRadius="4" Padding="8,4" Opacity="0.8">
                         <TextBlock Text="{Binding CurrentNpc.SocialGroups[0], FallbackValue='Nessun Gruppo'}" Foreground="White" FontWeight="SemiBold"/>
                     </Border>
                 </StackPanel>
 
-                <Border Background="#E8EAF6" BorderBrush="#3F51B5" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,20">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="📍 Posizione Attuale:" FontWeight="Bold" Foreground="#3F51B5" Margin="0,0,10,0"/>
-                        <TextBlock Text="{Binding CurrentNpc.CurrentLocation}" FontWeight="SemiBold" Foreground="#333"/>
-                    </StackPanel>
-                </Border>
-
-                <TextBlock Text="BIO" FontWeight="Bold" Foreground="#666" Margin="0,0,0,5"/>
-                <TextBlock Text="{Binding CurrentNpc.Description}" TextWrapping="Wrap" FontSize="14" Foreground="#333" LineHeight="22" Margin="0,0,0,30"/>
-
                 <Grid Margin="0,0,0,5">
                     <TextBlock Text="PAZIENZA" FontWeight="Bold" Foreground="#444" HorizontalAlignment="Left"/>
                     <TextBlock Text="{Binding CurrentNpc.Stats.CurrentPatience, StringFormat='{}{0} / 100'}" FontWeight="Bold" Foreground="#444" HorizontalAlignment="Right"/>
                 </Grid>
+                <ProgressBar Value="{Binding CurrentNpc.Stats.CurrentPatience}" Maximum="100" Height="15" Foreground="{Binding CurrentNpc.HexColor}" Background="#E0E0E0" BorderThickness="0" Margin="0,0,0,15"/>
 
-                <ProgressBar Value="{Binding CurrentNpc.Stats.CurrentPatience}" Maximum="100" Height="20" Foreground="{Binding CurrentNpc.HexColor}" 
-                             Background="#E0E0E0" BorderThickness="0"/>
+                <Grid Margin="0,0,0,5">
+                    <TextBlock Text="AFFETTO (CUORI)" FontWeight="Bold" Foreground="#E91E63" HorizontalAlignment="Left"/>
+                    <TextBlock Text="{Binding CurrentNpc.Stats.CurrentAffection, StringFormat='{}{0}'}" FontWeight="Bold" Foreground="#E91E63" HorizontalAlignment="Right"/>
+                </Grid>
+                <ProgressBar Value="{Binding CurrentNpc.Stats.CurrentAffection}" Maximum="{Binding CurrentNpc.Stats.MaxAffection}" Height="15" Foreground="#E91E63" Background="#E0E0E0" BorderThickness="0" Margin="0,0,0,20"/>
 
-                <TextBlock Text="Se arriva a 0, il legame è perso per sempre."
-                           FontSize="11" FontStyle="Italic" Foreground="#888" Margin="0,5,0,0"/>
+                <TextBlock Text="BIO" FontWeight="Bold" Foreground="#666" Margin="0,0,0,5"/>
+                <TextBlock Text="{Binding CurrentNpc.Description}" TextWrapping="Wrap" FontSize="14" Foreground="#333" LineHeight="22" Margin="0,0,0,30"/>
+
+                <TextBlock Text="{Binding LastActionFeedback}" Foreground="Green" FontWeight="Bold" FontStyle="Italic"/>
             </StackPanel>
         </Grid>
+
+        <Border Grid.Row="0" Grid.RowSpan="2" Background="#AA000000" 
+                Visibility="{Binding IsDialogueActive, Converter={StaticResource BoolToVis}}">
+            <Grid VerticalAlignment="Bottom" Height="250" Margin="20" Background="White">
+                <Grid.Effect>
+                    <DropShadowEffect BlurRadius="20" ShadowDepth="0" Opacity="0.5"/>
+                </Grid.Effect>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Border Background="{Binding CurrentNpc.HexColor}" Padding="15,5" HorizontalAlignment="Left" Margin="20,-15,0,0" CornerRadius="2">
+                    <TextBlock Text="{Binding CurrentNpc.Name}" Foreground="White" FontWeight="Bold" FontSize="16"/>
+                </Border>
+
+                <TextBlock Grid.Row="1" Text="{Binding CurrentDialogueNode.Text}" 
+                           TextWrapping="Wrap" FontSize="18" Margin="20,20,20,10" Foreground="#333"
+                           FontFamily="Segoe UI"/>
+
+                <ItemsControl Grid.Row="2" ItemsSource="{Binding CurrentDialogueNode.Choices}" Margin="10">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Content="{Binding Text}" 
+                                    Command="{Binding DataContext.SelectChoiceCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                    CommandParameter="{Binding}"
+                                    Margin="5" Padding="15,10" 
+                                    Background="#EEEEEE" BorderBrush="#CCC" BorderThickness="1"
+                                    FontSize="14" Cursor="Hand">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#DDDDDD"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
+        </Border>
+
     </Grid>
 </Window>
