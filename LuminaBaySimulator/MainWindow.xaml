@@ -79,11 +79,18 @@
 
         <Border Grid.Row="1" Background="#EEE" Padding="10">
             <DockPanel LastChildFill="False">
-                <Button DockPanel.Dock="Left" Command="{Binding BackToMapCommand}" 
-                    Content="⬅ TORNA ALLA MAPPA" Background="#5C6BC0" Foreground="White" FontWeight="Bold" Padding="15,5"
-                    Visibility="{Binding CurrentViewMode, Converter={StaticResource BoolToVis}}">
+                <Button DockPanel.Dock="Left" 
+                    Command="{Binding BackToMapCommand}" 
+                    Content="⬅ TORNA ALLA MAPPA" 
+                    Background="#5C6BC0" 
+                    Foreground="White" 
+                    FontWeight="Bold" 
+                    Padding="15,5">
+
                     <Button.Style>
                         <Style TargetType="Button">
+                            <Setter Property="Visibility" Value="Visible"/>
+
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding CurrentViewMode}" Value="Map">
                                     <Setter Property="Visibility" Value="Collapsed"/>
