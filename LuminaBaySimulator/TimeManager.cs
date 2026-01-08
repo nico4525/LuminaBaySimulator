@@ -80,5 +80,22 @@ namespace LuminaBaySimulator
         public string LocalizedDayName => CultureInfo.GetCultureInfo("it-IT").DateTimeFormat.GetDayName(CurrentDayOfWeek);
 
         public string FullDateString => $"GIORNO {CurrentDay} - {CultureInfo.CurrentCulture.TextInfo.ToTitleCase(LocalizedDayName)}";
+
+        /// <summary>
+        /// Forza l'aggiornamento della UI per tutte le proprietà temporali.
+        /// Da chiamare dopo aver caricato una partita salvata.
+        /// </summary>
+        public void RefreshTimeDisplay()
+        {
+            CurrentDayOfWeek = (DayOfWeek)(CurrentDay % 7);
+
+            OnPropertyChanged(nameof(CurrentDay));
+            OnPropertyChanged(nameof(CurrentPhase));
+            OnPropertyChanged(nameof(CurrentDayOfWeek));
+
+            OnPropertyChanged(nameof(LocalizedPhase));
+            OnPropertyChanged(nameof(LocalizedDayName));
+            OnPropertyChanged(nameof(FullDateString));
+        }
     }
 }

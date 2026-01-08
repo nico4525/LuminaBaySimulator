@@ -1,14 +1,27 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace LuminaBaySimulator
 {
+    public class GameSaveData
+    {
+        public int Money { get; set; }
+        public int Energy { get; set; }
+        public int Stress { get; set; }
+        public int Intelligence { get; set; }
+        public List<string> InventoryItemIds { get; set; } = new List<string>(); 
+
+        public int CurrentDay { get; set; }
+        public DayPhase CurrentPhase { get; set; }
+    }
+
     public class GameManager
     {
         private static readonly Lazy<GameManager> _lazy = new Lazy<GameManager>(() => new GameManager());
@@ -22,6 +35,8 @@ namespace LuminaBaySimulator
         public List<GameLocation> Locations { get; private set; }
 
         public List<GameItem> ShopItems { get; private set; }
+
+        private string SaveFilePath => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "savegame.json");
 
         private GameManager()
         {
@@ -178,5 +193,73 @@ namespace LuminaBaySimulator
                 }
             }
         }
+
+        public void SaveGame()
+        {
+            try
+            {
+                var saveData = new GameSaveData
+                {
+                    Money = Player.Money,
+                    Energy = Player.Energy,
+                    Stress = Player.Stress,
+                    Intelligence = Player.Intelligence,
+                    InventoryItemIds = Player.Inventory.Select(x => x.Id).ToList(),
+                    CurrentDay = WorldTime.CurrentDay,
+                    CurrentPhase = WorldTime.CurrentPhase
+                };
+
+                var options = new JsonSerializerOptions { WriteIndented = true };
+                string jsonString = System.Text.Json.JsonSerializer.Serialize(saveData, options);
+                File.WriteAllText(SaveFilePath, jsonString);
+
+                System.Diagnostics.Debug.WriteLine("Partita salvata con successo.");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Errore durante il salvataggio: {ex.Message}");
+            }
+        }
+
+        public bool LoadGame()
+        {
+            if (!File.Exists(SaveFilePath)) return false;
+
+            try
+            {
+                string jsonString = File.ReadAllText(SaveFilePath);
+                var loadedData = System.Text.Json.JsonSerializer.Deserialize<GameSaveData>(jsonString);
+
+                if (loadedData == null) return false;
+
+                Player.Money = loadedData.Money;
+                Player.Energy = loadedData.Energy;
+                Player.Stress = loadedData.Stress;
+                Player.Intelligence = loadedData.Intelligence;
+
+                Player.Inventory.Clear();
+                foreach (var itemId in loadedData.InventoryItemIds)
+                {
+                    var itemRef = ShopItems.FirstOrDefault(x => x.Id == itemId);
+                    if (itemRef != null)
+                    {
+                        Player.Inventory.Add(itemRef);
+                    }
+                }
+
+                WorldTime.CurrentDay = loadedData.CurrentDay;
+                WorldTime.CurrentPhase = loadedData.CurrentPhase;
+
+                WorldTime.RefreshTimeDisplay();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Errore durante il caricamento: {ex.Message}");
+                return false;
+            }
+        }
     }
 }
+

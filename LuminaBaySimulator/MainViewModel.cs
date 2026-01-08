@@ -46,35 +46,42 @@ namespace LuminaBaySimulator
         private DialogueNode? _currentDialogueNode;
 
         [ObservableProperty]
-        private string _lastActionFeedback = "";
+        private string _statusMessage = "";
+
+        [ObservableProperty]
+        private bool _isStatusVisible;
 
         public MainViewModel()
         {
             GameManager.Instance.LoadAllNpcs();
 
-            GameManager.Instance.WorldTime.NewDayStarted += OnNewDayStarted;
+            GameManager.Instance.WorldTime.NewDayStarted += (s, e) => ShowStatusMessage("🌅 È sorto un nuovo giorno!", 4000);
 
-            GameManager.Instance.WorldTime.PropertyChanged += (s, e) =>
-            {
-                RefreshCommandStates();
-                if (CurrentViewMode == GameViewMode.LocationInside && CurrentLocation != null)
-                {
-                    RefreshNpcsInLocation();
-                }
-            };
-
-            GameManager.Instance.Player.PropertyChanged += (s, e) =>
-            {
-                RefreshCommandStates();
-                SelectChoiceCommand.NotifyCanExecuteChanged();
-            };
+            GameManager.Instance.WorldTime.PropertyChanged += (s, e) => RefreshCommandStates();
+            GameManager.Instance.Player.PropertyChanged += (s, e) => RefreshCommandStates();
 
             CurrentNpc = GameManager.Instance.AllNpcs.FirstOrDefault();
-            if (CurrentNpc != null)
+            if (CurrentNpc != null) CurrentNpc.RefreshLocation();
+        }
+
+        /// <summary>
+        /// Mostra un messaggio temporaneo che sparisce automaticamente (Async/Await)
+        /// </summary>
+        private async void ShowStatusMessage(string message, int delayMs = 3000)
+        {
+            StatusMessage = message;
+            IsStatusVisible = true;
+
+            await Task.Delay(delayMs);
+
+            if (StatusMessage == message)
             {
-                CurrentNpc.RefreshLocation();
+                IsStatusVisible = false;
+                StatusMessage = "";
             }
         }
+
+
 
         private void OnNewDayStarted(object? sender, EventArgs e)
         {
@@ -160,15 +167,10 @@ namespace LuminaBaySimulator
         private void TravelToLocation(GameLocation location)
         {
             if (location == null) return;
-
-            // TODO: Qui potresti aggiungere un costo in energia per lo spostamento
-            // Player.Energy -= 5; 
-
             CurrentLocation = location;
             CurrentViewMode = GameViewMode.LocationInside;
-            LastActionFeedback = $"Sei arrivato a: {location.Name}.";
-
             RefreshNpcsInLocation();
+            ShowStatusMessage($"Sei arrivato a: {location.Name}");
         }
 
         [RelayCommand]
@@ -177,7 +179,9 @@ namespace LuminaBaySimulator
             CurrentViewMode = GameViewMode.Map;
             CurrentLocation = null;
             CurrentNpc = null;
-            LastActionFeedback = "Stai guardando la mappa della città.";
+            IsDialogueActive = false;
+            CurrentDialogueNode = null;
+            ShowStatusMessage("Sei tornato alla mappa della città.");
         }
 
         private void RefreshNpcsInLocation()
@@ -201,13 +205,8 @@ namespace LuminaBaySimulator
         private void OpenShop()
         {
             CurrentShopInventory.Clear();
-            foreach (var item in GameManager.Instance.ShopItems)
-            {
-                CurrentShopInventory.Add(item);
-            }
-
+            foreach (var item in GameManager.Instance.ShopItems) CurrentShopInventory.Add(item);
             CurrentViewMode = GameViewMode.Shop;
-            LastActionFeedback = "Benvenuto al Centro Commerciale! Cosa vuoi comprare?";
         }
 
         [RelayCommand]
@@ -226,13 +225,11 @@ namespace LuminaBaySimulator
             {
                 Player.Money -= item.Cost;
                 Player.AddItem(item);
-                LastActionFeedback = $"Hai acquistato: {item.Name}!";
-
-                BuyItemCommand.NotifyCanExecuteChanged();
+                ShowStatusMessage($"Acquistato: {item.Name}!", 2000);
             }
             else
             {
-                LastActionFeedback = "Non hai abbastanza soldi per questo oggetto!";
+                ShowStatusMessage("❌ Non hai abbastanza soldi!", 2000);
             }
         }
 
@@ -240,16 +237,16 @@ namespace LuminaBaySimulator
         private void InteractWithNpc(NpcData npc)
         {
             if (npc == null) return;
-
-            CurrentNpc = npc; 
+            CurrentNpc = npc;
 
             if (CurrentNpc.Dialogues == null || !CurrentNpc.Dialogues.ContainsKey("root"))
             {
-                MessageBox.Show("Questo personaggio è timido (nessun dialogo).");
+                ShowStatusMessage($"{npc.Name} sembra impegnato/a.", 2000);
                 return;
             }
 
-            CurrentViewMode = GameViewMode.Dialogue; 
+            CurrentViewMode = GameViewMode.Dialogue;
+            IsDialogueActive = true; 
             LoadNode("root");
         }
 
@@ -283,14 +280,14 @@ namespace LuminaBaySimulator
                 if (CurrentNpc.Stats.CurrentPatience < 0) CurrentNpc.Stats.CurrentPatience = 0;
                 if (CurrentNpc.Stats.CurrentPatience > 100) CurrentNpc.Stats.CurrentPatience = 100;
 
-                LastActionFeedback = $"Effetto: Affetto {choice.Impact.Affection:+0;-0}, Pazienza {choice.Impact.Patience:+0;-0}";
+                ShowStatusMessage($"Effetto: Affetto {choice.Impact.Affection:+0;-0}, Pazienza {choice.Impact.Patience:+0;-0}");
             }
 
             if (string.IsNullOrEmpty(choice.NextNodeId) || choice.NextNodeId.ToUpper() == "END")
             {
                 CurrentViewMode = GameViewMode.LocationInside;
                 CurrentDialogueNode = null;
-                LastActionFeedback = "La conversazione è terminata.";
+                ShowStatusMessage("Conversazione terminata.");
             }
             else
             {
@@ -332,6 +329,52 @@ namespace LuminaBaySimulator
             {
                 IsDialogueActive = false;
             }
+        }
+
+        [RelayCommand]
+        private void SaveGame()
+        {
+            GameManager.Instance.SaveGame();
+            ShowStatusMessage("💾 Partita Salvata!", 2000);
+        }
+
+        [RelayCommand]
+        private void LoadGame()
+        {
+            bool success = GameManager.Instance.LoadGame();
+            if (success)
+            {
+                BackToMap();
+                RefreshCommandStates();
+                ShowStatusMessage("📂 Partita Caricata!", 2000);
+            }
+            else
+            {
+                ShowStatusMessage("⚠ Nessun salvataggio trovato.", 2000);
+            }
+        }
+
+
+        [RelayCommand]
+        private void DebugAddMoney()
+        {
+            Player.Money += 100;
+            ShowStatusMessage("💰 DEBUG: +100€ Aggiunti");
+        }
+
+        [RelayCommand]
+        private void DebugSkipTime()
+        {
+            WorldTime.AdvanceTime();
+            ShowStatusMessage($"⏩ DEBUG: Tempo avanzato ({WorldTime.LocalizedPhase})");
+        }
+
+        [RelayCommand]
+        private void DebugRestoreStats()
+        {
+            Player.Energy = 100;
+            Player.Stress = 0;
+            ShowStatusMessage("⚡ DEBUG: Statistiche Ripristinate");
         }
     }
 }
