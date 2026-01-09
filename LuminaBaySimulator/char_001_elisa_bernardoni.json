@@ -1,6 +1,7 @@
 ﻿{
 	"npc_id": "char_001",
 	"name": "Elisa Bernardoni",
+	"sprite_path": "/Assets/Images/Portraits/elisa_bernardoni.png",
 	"schedule": {
 		"monday": {
 			"morning": "liceo_newton_classe_2B",
