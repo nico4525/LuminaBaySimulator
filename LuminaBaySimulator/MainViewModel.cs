@@ -342,14 +342,17 @@ namespace LuminaBaySimulator
                 if (CurrentNpc.Stats.CurrentPatience < 0) CurrentNpc.Stats.CurrentPatience = 0;
                 if (CurrentNpc.Stats.CurrentPatience > 100) CurrentNpc.Stats.CurrentPatience = 100;
 
-                ShowStatusMessage($"Effetto: Affetto {choice.Impact.Affection:+0;-0}, Pazienza {choice.Impact.Patience:+0;-0}");
-            }
-
-            if (choice.Impact.SetStoryFlags != null)
-            {
-                foreach(var flag in choice.Impact.SetStoryFlags)
+                if (choice.Impact.Affection != 0 || choice.Impact.Patience != 0)
                 {
-                    GameManager.Instance.Player.SetFlag(flag.Key, flag.Value);
+                    ShowStatusMessage($"Effetto: Affetto {choice.Impact.Affection:+0;-0}, Pazienza {choice.Impact.Patience:+0;-0}");
+                }
+
+                if (choice.Impact.SetStoryFlags != null)
+                {
+                    foreach (var flag in choice.Impact.SetStoryFlags)
+                    {
+                        GameManager.Instance.Player.SetFlag(flag.Key, flag.Value);
+                    }
                 }
             }
 

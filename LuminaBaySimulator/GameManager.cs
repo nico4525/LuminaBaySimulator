@@ -50,6 +50,10 @@ namespace LuminaBaySimulator
 
             InitializeLocations();
             LoadShopItems();
+
+            LoadAllNpcs();
+
+            ValidateDate();
         }
 
         /// <summary>
@@ -273,6 +277,71 @@ namespace LuminaBaySimulator
             {
                 System.Diagnostics.Debug.WriteLine($"Errore durante il caricamento: {ex.Message}");
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// Validazione dell'integrità referenziale dei dati.
+        /// Controlla che tutti i "NextNodeId" nei dialoghi puntino a nodi esistenti.
+        /// </summary>
+        public void ValidateDate()
+        {
+            System.Diagnostics.Debug.WriteLine("--- INIZIO VALIDAZIONE DATI ---");
+            int errorsFound = 0;
+
+            foreach(var npc in AllNpcs)
+            {
+                if (npc.Dialogues == null || npc.Dialogues.Count == 0)
+                {
+                    continue;
+                }
+
+                foreach(var nodePair in npc.Dialogues)
+                {
+                    string nodeId = nodePair.Key;
+                    DialogueNode node = nodePair.Value;
+
+                    if (node.Choices == null) continue;
+
+                    foreach(var choice in node.Choices)
+                    {
+                        if (string.Equals(choice.NextNodeId, "END", StringComparison.OrdinalIgnoreCase))
+                            continue;
+
+                        if (string.IsNullOrEmpty(choice.NextNodeId))
+                        {
+                            System.Diagnostics.Debug.WriteLine($"[ERRORE DATI] NPC: {npc.Name} ({npc.Id}) | Nodo: {nodeId} | Scelta: '{choice.Text}' ha un NextNodeId VUOTO.");
+                            errorsFound++;
+                            continue;
+                        }
+
+                        if (!npc.Dialogues.ContainsKey(choice.NextNodeId))
+                        {
+                            string msg = $"[CRITICO] DEAD LINK TROVATO!\n" +
+                                         $"NPC: {npc.Name}\n" +
+                                         $"Nodo Origine: {nodeId}\n" +
+                                         $"Testo Scelta: '{choice.Text}'\n" +
+                                         $"Punta a: '{choice.NextNodeId}' (NON ESISTE)";
+
+                            System.Diagnostics.Debug.WriteLine(msg);
+
+                            #if DEBUG
+                            System.Windows.MessageBox.Show(msg, "Errore Integrità Dati", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                            #endif
+
+                            errorsFound++;
+                        }
+                    }
+                }
+            }
+
+            if (errorsFound == 0)
+            {
+                System.Diagnostics.Debug.WriteLine("--- VALIDAZIONE COMPLETATA: NESSUN ERRORE ---");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"--- VALIDAZIONE COMPLETATA: TROVATI {errorsFound} ERRORI ---");
             }
         }
     }

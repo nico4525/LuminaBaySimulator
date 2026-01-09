@@ -39,4 +39,21 @@ namespace LuminaBaySimulator
             return this;
         }
     }
+
+    /// <summary>
+    /// Converte una stringa (percorso file) in una BitmapImage usando la cache ottimizzata.
+    /// </summary>
+    public class PathToBitmapConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            string path = value as string;
+            return ImageLoader.LoadImage(path);
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
