@@ -1,11 +1,87 @@
 ﻿{
 	"npc_id": "char_001",
 	"name": "Elisa Bernardoni",
+	"date_of_birth": "2009-10-11T00:00:00",
+	"age": 15,
+	"gender": "female",
+	"hex_color": "#9E2A2F",
+	"romance_option": true,
 	"sprite_path": "/Assets/Images/Portraits/elisa_bernardoni.png",
+	"token_sprite": "/Assets/Images/Tokens/elisa_bernardoni_token.png",
+	"description": "Una talentuosa studentessa liceale con una passione divorante per l'arte. Dietro un'apparenza a volte malinconica o distaccata, nasconde una profonda sensibilità.",
+	"social_groups": [
+		"artisti",
+		"alternativi"
+	],
 	"stats": {
 		"base_patience": 50,
 		"affection_max": 100,
-		"affection_current": 0
+		"affection_current": 0,
+		"event_thresholds": [
+			20,
+			50,
+			80,
+			100
+		],
+		"jealousy_factor": 0.4,
+		"jealousy_type": "soft_tier1",
+		"jealousy_progression": {
+			"phase_1": {
+				"active": true,
+				"factor": 0.4,
+				"penalties": {
+					"affection": -5,
+					"patience": -3
+				},
+				"reactions": [
+					"sms_passive_aggressive",
+					"comment_jealous"
+				]
+			}
+		}
+	},
+	"preferences": {
+		"outfit_styles": [
+			"artistico",
+			"casual",
+			"elegante"
+		],
+		"favorite_foods": [
+			"caffè_nero",
+			"cioccolato_fondente",
+			"muffin_mirtilli"
+		],
+		"hobbies": [
+			"disegno",
+			"musica_indie",
+			"osservare_gente"
+		],
+		"date_locations": [
+			"parco",
+			"museo",
+			"biblioteca"
+		],
+		"gifts_loved": [
+			"sketchbook_pro",
+			"matite_carboncino",
+			"ticket_concerto"
+		],
+		"gifts_hated": [
+			"violent_game",
+			"attrezzatura_sportiva",
+			"energy_drink"
+		]
+	},
+	"birthday_events": {
+		"notification_days_before": 3,
+		"birthday_gift_preferences": [
+			"sketchbook_pro",
+			"set_colori_olio"
+		],
+		"birthday_forgotten_penalty": {
+			"affection": -15,
+			"patience": -10
+		}
 	},
 	"schedule": {
 		"monday": {
@@ -54,7 +130,7 @@
 	"dialogues": {
 		"root": {
 			"id": "root",
-			"text": "(Vedi Elisa Bernardoni. Sembra persa nei suoi pensieri mentre scarabocchia qualcosa.)",
+			"text": "(Vedi Elisa. Indossa quel vestito rosso che le sta d'incanto, intenta a disegnare sul suo sketchbook.)",
 			"choices": [
 				{
 					"text": "[GIORNO 1] Avvicinati e presentati",
@@ -106,7 +182,7 @@
 		},
 		"day1_intro": {
 			"id": "day1_intro",
-			"text": "Mmh? Ah, scusa, non ti avevo visto. Sei quello nuovo, giusto?",
+			"text": "Mmh? Ah, scusa, non ti avevo visto. Ero persa nel foglio. Tu sei quello nuovo, giusto?",
 			"choices": [
 				{
 					"text": "Sì, piacere di conoscerti. Bel disegno!",
@@ -137,7 +213,7 @@
 		},
 		"day1_nice_response": {
 			"id": "day1_nice_response",
-			"text": "Oh... grazie. È solo uno schizzo. Beh, benvenuto a Lumina Bay. Ci si vede in giro.",
+			"text": "Oh... grazie. È solo uno schizzo, sto provando a catturare la luce. Beh, benvenuto a Lumina Bay.",
 			"choices": [
 				{
 					"text": "A presto!",
@@ -147,7 +223,7 @@
 		},
 		"day1_rude_response": {
 			"id": "day1_rude_response",
-			"text": "Wow, simpatico. Non preoccuparti, me ne vado subito.",
+			"text": "Wow, che modi. Non preoccuparti, me ne vado subito. Stammi alla larga.",
 			"choices": [
 				{
 					"text": "(Se ne va irritata)",
@@ -170,7 +246,9 @@
 					"text": "Figurati.",
 					"next_node_id": "END",
 					"impact": {
-						"set_story_flags": { "day2_done": true }
+						"set_story_flags": {
+							"day2_done": true
+						}
 					}
 				}
 			]
@@ -183,7 +261,9 @@
 					"text": "Capisco. Beh, buona fortuna!",
 					"next_node_id": "END",
 					"impact": {
-						"set_story_flags": { "day2_done": true }
+						"set_story_flags": {
+							"day2_done": true
+						}
 					}
 				}
 			]
@@ -211,14 +291,16 @@
 					"next_node_id": "END",
 					"impact": {
 						"patience": -5,
-						"set_story_flags": { "day2_done": true }
+						"set_story_flags": {
+							"day2_done": true
+						}
 					}
 				}
 			]
 		},
 		"day2_apology_accepted": {
 			"id": "day2_apology_accepted",
-			"text": "Mmh. D'accordo, scuse accettate. Ma vedi di non farci l'abitudine.",
+			"text": "Mmh. D'accordo, scuse accettate. Ma vedi di non farci l'abitudine. Odio le persone scortesi.",
 			"choices": [
 				{
 					"text": "Ricevuto.",
@@ -239,7 +321,9 @@
 					"impact": {
 						"affection": 20,
 						"patience": 10,
-						"set_story_flags": { "day3_done": true }
+						"set_story_flags": {
+							"day3_done": true
+						}
 					}
 				},
 				{
@@ -250,7 +334,9 @@
 					},
 					"impact": {
 						"affection": 5,
-						"set_story_flags": { "day3_done": true }
+						"set_story_flags": {
+							"day3_done": true
+						}
 					}
 				},
 				{
@@ -262,7 +348,9 @@
 					"impact": {
 						"affection": -10,
 						"patience": -10,
-						"set_story_flags": { "day3_done": true }
+						"set_story_flags": {
+							"day3_done": true
+						}
 					}
 				},
 				{
@@ -283,10 +371,10 @@
 		},
 		"day3_gift_neutral": {
 			"id": "day3_gift_neutral",
-			"text": "Oh, cioccolatini? Grazie... non mi aiutano a disegnare, ma almeno sono buoni.",
+			"text": "Oh, cioccolatini? Grazie... non mi aiutano a disegnare, ma almeno sono buoni. Ne vuoi uno?",
 			"choices": [
 				{
-					"text": "Prego.",
+					"text": "Grazie.",
 					"next_node_id": "END"
 				}
 			]
