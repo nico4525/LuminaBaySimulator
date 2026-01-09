@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:LuminaBaySimulator"
         mc:Ignorable="d"
         Title="Lumina Bay Simulator - Phase 2" Height="650" Width="1000"
+        x:Name="GameWindow"
         Background="#121212">
 
     <d:Window.DataContext>

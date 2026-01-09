@@ -2,10 +2,27 @@
 	"npc_id": "char_001",
 	"name": "Elisa Bernardoni",
 	"sprite_path": "/Assets/Images/Portraits/elisa_bernardoni.png",
+	"stats": {
+		"base_patience": 50,
+		"affection_max": 100,
+		"affection_current": 0
+	},
 	"schedule": {
 		"monday": {
 			"morning": "liceo_newton_classe_2B",
 			"afternoon": "parco",
+			"evening": "casa",
+			"night": "camera_sua"
+		},
+		"tuesday": {
+			"morning": "liceo_newton_classe_2B",
+			"afternoon": "biblioteca",
+			"evening": "casa",
+			"night": "camera_sua"
+		},
+		"wednesday": {
+			"morning": "liceo_newton_classe_2B",
+			"afternoon": "centro_commerciale",
 			"evening": "casa",
 			"night": "camera_sua"
 		},
@@ -28,51 +45,258 @@
 		"centro_commerciale": {
 			"x": 50,
 			"y": 200
+		},
+		"biblioteca": {
+			"x": 300,
+			"y": 300
 		}
 	},
 	"dialogues": {
 		"root": {
 			"id": "root",
-			"text": "Ehi tu! Non ti ho mai visto da queste parti.",
+			"text": "(Vedi Elisa Bernardoni. Sembra persa nei suoi pensieri mentre scarabocchia qualcosa.)",
 			"choices": [
 				{
-					"text": "Piacere, mi sono appena trasferito.",
-					"next_node_id": "intro_nice",
-					"impact": {
-						"affection": 5,
-						"set_story_flags": {
-							"met_elisa": true
+					"text": "[GIORNO 1] Avvicinati e presentati",
+					"next_node_id": "day1_intro",
+					"requirements": {
+						"story_flags": {
+							"met_elisa": false
 						}
 					}
 				},
 				{
-					"text": "Sparisci.",
-					"next_node_id": "END",
+					"text": "[GIORNO 2] Salutala (Sei stato gentile ieri)",
+					"next_node_id": "day2_friendly",
+					"requirements": {
+						"story_flags": {
+							"met_elisa": true,
+							"day1_done": true,
+							"bad_first_impression": false,
+							"day2_done": false
+						}
+					}
+				},
+				{
+					"text": "[GIORNO 2] Prova a parlarle (Sei stato arrogante ieri)",
+					"next_node_id": "day2_hostile",
+					"requirements": {
+						"story_flags": {
+							"met_elisa": true,
+							"day1_done": true,
+							"bad_first_impression": true,
+							"day2_done": false
+						}
+					}
+				},
+				{
+					"text": "[GIORNO 3] Chiedile come sta (Tutorial Regali)",
+					"next_node_id": "day3_gift_start",
+					"requirements": {
+						"story_flags": {
+							"day2_done": true
+						}
+					}
+				},
+				{
+					"text": "Lasciala stare per ora.",
+					"next_node_id": "END"
+				}
+			]
+		},
+		"day1_intro": {
+			"id": "day1_intro",
+			"text": "Mmh? Ah, scusa, non ti avevo visto. Sei quello nuovo, giusto?",
+			"choices": [
+				{
+					"text": "Sì, piacere di conoscerti. Bel disegno!",
+					"next_node_id": "day1_nice_response",
 					"impact": {
-						"affection": -10,
+						"affection": 5,
 						"set_story_flags": {
-							"elisa_hates_player": true
+							"met_elisa": true,
+							"day1_done": true,
+							"bad_first_impression": false
+						}
+					}
+				},
+				{
+					"text": "Sì. E tu stai occupando tutto il passaggio. Spostati.",
+					"next_node_id": "day1_rude_response",
+					"impact": {
+						"affection": -5,
+						"patience": -10,
+						"set_story_flags": {
+							"met_elisa": true,
+							"day1_done": true,
+							"bad_first_impression": true
 						}
 					}
 				}
 			]
 		},
-		"intro_nice": {
-			"id": "intro_nice",
-			"text": "Oh, capisco. Beh, benvenuto a Lumina Bay.",
+		"day1_nice_response": {
+			"id": "day1_nice_response",
+			"text": "Oh... grazie. È solo uno schizzo. Beh, benvenuto a Lumina Bay. Ci si vede in giro.",
 			"choices": [
 				{
-					"text": "Ti va di studiare insieme? (Richiede Intelligenza 10)",
-					"next_node_id": "study_date",
+					"text": "A presto!",
+					"next_node_id": "END"
+				}
+			]
+		},
+		"day1_rude_response": {
+			"id": "day1_rude_response",
+			"text": "Wow, simpatico. Non preoccuparti, me ne vado subito.",
+			"choices": [
+				{
+					"text": "(Se ne va irritata)",
+					"next_node_id": "END"
+				}
+			]
+		},
+		"day2_friendly": {
+			"id": "day2_friendly",
+			"text": "Ehi! Ciao di nuovo. Sai, stavo ripensando a ieri... grazie per il complimento sul disegno. Non lo mostro a molti.",
+			"choices": [
+				{
+					"text": "Dovresti, hai talento. Disegni spesso?",
+					"next_node_id": "day2_art_passion",
+					"impact": {
+						"affection": 5
+					}
+				},
+				{
+					"text": "Figurati.",
+					"next_node_id": "END",
+					"impact": {
+						"set_story_flags": { "day2_done": true }
+					}
+				}
+			]
+		},
+		"day2_art_passion": {
+			"id": "day2_art_passion",
+			"text": "Sì, è l'unica cosa che mi rilassa davvero. Sto lavorando a un ritratto, ma è complicato trovare i materiali giusti qui.",
+			"choices": [
+				{
+					"text": "Capisco. Beh, buona fortuna!",
+					"next_node_id": "END",
+					"impact": {
+						"set_story_flags": { "day2_done": true }
+					}
+				}
+			]
+		},
+		"day2_hostile": {
+			"id": "day2_hostile",
+			"text": "Ancora tu? Senti, se sei venuto a darmi ordini anche oggi, risparmia il fiato.",
+			"choices": [
+				{
+					"text": "[Intelligenza 10] Ascolta, scusa per ieri. Ero stressato per il trasloco.",
+					"next_node_id": "day2_apology_accepted",
 					"requirements": {
-						"intelligence": 10,
-						"story_flags": {
-							"met_elisa": true
+						"intelligence": 10
+					},
+					"impact": {
+						"patience": 5,
+						"set_story_flags": {
+							"day2_done": true,
+							"bad_first_impression": false
 						}
 					}
 				},
 				{
-					"text": "Grazie, ci vediamo.",
+					"text": "Volevo solo passare.",
+					"next_node_id": "END",
+					"impact": {
+						"patience": -5,
+						"set_story_flags": { "day2_done": true }
+					}
+				}
+			]
+		},
+		"day2_apology_accepted": {
+			"id": "day2_apology_accepted",
+			"text": "Mmh. D'accordo, scuse accettate. Ma vedi di non farci l'abitudine.",
+			"choices": [
+				{
+					"text": "Ricevuto.",
+					"next_node_id": "END"
+				}
+			]
+		},
+		"day3_gift_start": {
+			"id": "day3_gift_start",
+			"text": "Uff... che disastro. Ho finito completamente la carta per gli schizzi e la cartoleria è chiusa per inventario. Proprio ora che avevo l'ispirazione!",
+			"choices": [
+				{
+					"text": "[Regala Sketchbook Pro] Tieni, ne ho comprato uno io.",
+					"next_node_id": "day3_gift_loved",
+					"requirements": {
+						"item_id": "sketchbook_pro"
+					},
+					"impact": {
+						"affection": 20,
+						"patience": 10,
+						"set_story_flags": { "day3_done": true }
+					}
+				},
+				{
+					"text": "[Regala Cioccolatini] Magari questo ti tira su?",
+					"next_node_id": "day3_gift_neutral",
+					"requirements": {
+						"item_id": "chocolates_generic"
+					},
+					"impact": {
+						"affection": 5,
+						"set_story_flags": { "day3_done": true }
+					}
+				},
+				{
+					"text": "[Regala Gioco Violento] Questo ti farà dimenticare l'arte.",
+					"next_node_id": "day3_gift_hated",
+					"requirements": {
+						"item_id": "violent_game"
+					},
+					"impact": {
+						"affection": -10,
+						"patience": -10,
+						"set_story_flags": { "day3_done": true }
+					}
+				},
+				{
+					"text": "Mi dispiace. Spero tu risolva.",
+					"next_node_id": "END"
+				}
+			]
+		},
+		"day3_gift_loved": {
+			"id": "day3_gift_loved",
+			"text": "Ma... stai scherzando?! Questa è carta professionale a grana grossa! È... è perfetta! Grazie mille, davvero, non so come sdebitarmi!",
+			"choices": [
+				{
+					"text": "Sono felice che ti piaccia.",
+					"next_node_id": "END"
+				}
+			]
+		},
+		"day3_gift_neutral": {
+			"id": "day3_gift_neutral",
+			"text": "Oh, cioccolatini? Grazie... non mi aiutano a disegnare, ma almeno sono buoni.",
+			"choices": [
+				{
+					"text": "Prego.",
+					"next_node_id": "END"
+				}
+			]
+		},
+		"day3_gift_hated": {
+			"id": "day3_gift_hated",
+			"text": "'Call of Warfare'? Ma che problemi hai? Ti ho detto che mi serve carta per disegnare, non questa spazzatura violenta. Che schifo.",
+			"choices": [
+				{
+					"text": "...",
 					"next_node_id": "END"
 				}
 			]

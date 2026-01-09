@@ -6,6 +6,24 @@
     "Cost": 20
   },
   {
+    "Id": "chocolates_generic",
+    "Name": "Cioccolatini Generici",
+    "Description": "Semplici cioccolatini al latte. Un pensiero carino, ma nulla di speciale.",
+    "Cost": 15
+  },
+  {
+    "Id": "sketchbook_pro",
+    "Name": "Sketchbook Professionale",
+    "Description": "Carta a grana grossa 300gsm. Il sogno di ogni artista serio.",
+    "Cost": 45
+  },
+  {
+    "Id": "violent_game",
+    "Name": "Call of Warfare 5",
+    "Description": "Uno sparatutto ultraviolento. Decisamente non per tutti i gusti.",
+    "Cost": 30
+  },
+  {
     "Id": "energy_drink",
     "Name": "Lumina Energy",
     "Description": "Ti tiene sveglio... forse troppo.",
