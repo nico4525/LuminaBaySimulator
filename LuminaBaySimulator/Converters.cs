@@ -6,14 +6,15 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Markup;
 
 namespace LuminaBaySimulator
 {
     /// <summary>
     /// Converte un valore Enum (es. GameViewMode.Map) in Visibility.Visible se corrisponde al parametro passato.
-    /// Altrimenti restituisce Collapsed.
+    /// Eredita da MarkupExtension per poter essere usato direttamente nel XAML come {local:EnumToVisConverter}.
     /// </summary>
-    public class EnumToVisConverter : IValueConverter
+    public class EnumToVisConverter : MarkupExtension ,IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
@@ -31,6 +32,11 @@ namespace LuminaBaySimulator
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
+        }
+
+        public override object ProvideValue(IServiceProvider serviceProvider)
+        {
+            return this;
         }
     }
 }
