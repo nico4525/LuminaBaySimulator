@@ -93,14 +93,6 @@ namespace LuminaBaySimulator
             string targetDirectory = AppDomain.CurrentDomain.BaseDirectory;
             string shopFile = Path.Combine(targetDirectory, "shop_data.json");
 
-            #if DEBUG
-            string debugPath = Path.GetFullPath(Path.Combine(targetDirectory, @"..\..\..\"));
-            if (File.Exists(Path.Combine(debugPath, "shop_data.json")))
-            {
-                shopFile = Path.Combine(debugPath, "shop_data.json");
-            }
-            #endif
-
             if (File.Exists(shopFile))
             {
                 try
@@ -116,6 +108,10 @@ namespace LuminaBaySimulator
                 {
                     System.Diagnostics.Debug.WriteLine($"Errore caricamento negozio: {ex.Message}");
                 }
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"[WARNING] File negozio non trovato in: {shopFile}");
             }
         }
 
@@ -163,15 +159,11 @@ namespace LuminaBaySimulator
 
             string targetDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
-            #if DEBUG
-            
-            string debugPath = Path.GetFullPath(Path.Combine(targetDirectory, @"..\..\..\"));
-            if (Directory.Exists(debugPath))
+            if (!Directory.Exists(targetDirectory))
             {
-                targetDirectory = debugPath;
-                System.Diagnostics.Debug.WriteLine($"[DEBUG MODE] Leggo i file dalla cartella sorgente: {targetDirectory}");
+                System.Diagnostics.Debug.WriteLine($"[ERRORE CRITICO] Directory base non trovata: {targetDirectory}");
+                return;
             }
-            #endif
 
             string[] jsonFiles = Directory.GetFiles(targetDirectory, "char_*.json");
 
@@ -189,11 +181,7 @@ namespace LuminaBaySimulator
 
                     if (!jsonContent.Contains("dialogues"))
                     {
-                        System.Diagnostics.Debug.WriteLine($"[ATTENZIONE CRITICA] Il file {Path.GetFileName(file)} letto da {targetDirectory} NON ha i dialoghi!");
-                    }
-                    else
-                    {
-                        System.Diagnostics.Debug.WriteLine($"[OK] Trovata sezione dialoghi in {Path.GetFileName(file)}");
+                        System.Diagnostics.Debug.WriteLine($"[ATTENZIONE] Il file {Path.GetFileName(file)} non sembra contenere dialoghi.");
                     }
 
                     var npc = JsonConvert.DeserializeObject<NpcData>(jsonContent);

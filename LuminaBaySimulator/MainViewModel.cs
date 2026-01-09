@@ -73,7 +73,7 @@ namespace LuminaBaySimulator
             _lastEnergy = Player.Energy;
             _lastStress = Player.Stress;
 
-            GameManager.Instance.WorldTime.NewDayStarted += (s, e) => ShowStatusMessage("🌅 È sorto un nuovo giorno!", 4000);
+            GameManager.Instance.WorldTime.NewDayStarted += (s, e) => _ = ShowStatusMessage("🌅 È sorto un nuovo giorno!", 4000);
 
             GameManager.Instance.WorldTime.PropertyChanged += (s, e) => RefreshCommandStates();
             GameManager.Instance.Player.PropertyChanged += OnPlayerStatsChanged;
@@ -106,50 +106,63 @@ namespace LuminaBaySimulator
             }
         }
 
-        private async void SpawnFloatingText(string text, string color)
+        private async Task SpawnFloatingText(string text, string color)
         {
-            // Creiamo l'oggetto visuale
-            var floatingItem = new FloatingTextItem
+            try
             {
-                Text = text,
-                Color = color,
-                StartX = 400 + new Random().Next(-50, 50),
-                StartY = 300
-            };
+                var floatingItem = new FloatingTextItem
+                {
+                    Text = text,
+                    Color = color,
+                    StartX = 400 + new Random().Next(-50, 50),
+                    StartY = 300
+                };
 
-            FloatingEffects.Add(floatingItem);
+                FloatingEffects.Add(floatingItem);
 
-            await Task.Delay(2000);
-            if (FloatingEffects.Contains(floatingItem))
+                await Task.Delay(2000);
+                if (FloatingEffects.Contains(floatingItem))
+                {
+                    FloatingEffects.Remove(floatingItem);
+                }
+            }
+            catch (Exception ex)
             {
-                FloatingEffects.Remove(floatingItem);
+                System.Diagnostics.Debug.WriteLine($"[ERROR] SpawnFloatingText failed: {ex.Message}");
             }
         }
 
         /// <summary>
-        /// Mostra un messaggio temporaneo che sparisce automaticamente (Async/Await)
+        /// Mostra un messaggio temporaneo che sparisce automaticamente (Async/Await).
+        /// MODIFICA: Da 'async void' a 'async Task' con try/catch interno.
         /// </summary>
-        private async void ShowStatusMessage(string message, int delayMs = 3000)
+        private async Task ShowStatusMessage(string message, int delayMs = 3000)
         {
-            StatusMessage = message;
-            IsStatusVisible = true;
-
-            await Task.Delay(delayMs);
-
-            if (StatusMessage == message)
+            try
             {
+                StatusMessage = message;
+                IsStatusVisible = true;
+
+                await Task.Delay(delayMs);
+
+                if (StatusMessage == message)
+                {
+                    IsStatusVisible = false;
+                    StatusMessage = "";
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[ERROR] ShowStatusMessage failed: {ex.Message}");
                 IsStatusVisible = false;
-                StatusMessage = "";
             }
         }
-
-
 
         private void OnNewDayStarted(object? sender, EventArgs e)
         {
             Player.Energy = PlayerStats.MaxEnergy;
 
-            ShowStatusMessage("È sorto un nuovo giorno! L'energia è stata ripristinata.");
+            _ = ShowStatusMessage("È sorto un nuovo giorno! L'energia è stata ripristinata.");
         }
 
         private void RefreshCommandStates()
@@ -168,8 +181,7 @@ namespace LuminaBaySimulator
             Player.Stress += 10;
             Player.Money += 5;
 
-            ShowStatusMessage("Sei andato a scuola. Hai imparato qualcosa, ma che fatica!");
-
+            _ = ShowStatusMessage("Sei andato a scuola. Hai imparato qualcosa, ma che fatica!");
             WorldTime.AdvanceTime();
         }
         private bool CanGoToSchool()
@@ -181,10 +193,9 @@ namespace LuminaBaySimulator
         private void Study()
         {
             Player.Energy -= 20;
-            Player.Stress += 15; 
+            Player.Stress += 15;
 
-            ShowStatusMessage("Hai studiato intensamente.");
-            WorldTime.AdvanceTime();
+            _ = ShowStatusMessage("Hai studiato intensamente."); WorldTime.AdvanceTime();
         }
         private bool CanStudy()
         {
@@ -197,7 +208,7 @@ namespace LuminaBaySimulator
             Player.Energy -= 5;
             Player.Stress -= 20; 
 
-            ShowStatusMessage("Ti sei preso un momento per respirare. Lo stress diminuisce.");
+            _ = ShowStatusMessage("Ti sei preso un momento per respirare. Lo stress diminuisce.");
             WorldTime.AdvanceTime();
         }
         private bool CanRelax()
@@ -208,7 +219,7 @@ namespace LuminaBaySimulator
         [RelayCommand]
         private void Sleep()
         {
-            ShowStatusMessage("Vai a dormire...");
+            _ = ShowStatusMessage("Vai a dormire...");
 
             while (WorldTime.CurrentPhase != DayPhase.Night)
             {
@@ -232,7 +243,7 @@ namespace LuminaBaySimulator
             CurrentLocation = location;
             CurrentViewMode = GameViewMode.LocationInside;
             RefreshNpcsInLocation();
-            ShowStatusMessage($"Sei arrivato a: {location.Name}");
+            _ = ShowStatusMessage($"Sei arrivato a: {location.Name}");
         }
 
         [RelayCommand]
@@ -243,7 +254,7 @@ namespace LuminaBaySimulator
             CurrentNpc = null;
             IsDialogueActive = false;
             CurrentDialogueNode = null;
-            ShowStatusMessage("Sei tornato alla mappa della città.");
+            _ = ShowStatusMessage("Sei tornato alla mappa della città.");
         }
 
         private void RefreshNpcsInLocation()
@@ -260,7 +271,7 @@ namespace LuminaBaySimulator
 
             if (NpcsInLocation.Count == 0)
             {
-                ShowStatusMessage("Non sembra esserci nessuno qui al momento.");
+                _ = ShowStatusMessage("Non sembra esserci nessuno qui al momento.");
             }
         }
 
@@ -276,7 +287,7 @@ namespace LuminaBaySimulator
         private void CloseShop()
         {
             CurrentViewMode = GameViewMode.LocationInside;
-            ShowStatusMessage("Hai lasciato il negozio.");
+            _ = ShowStatusMessage("Hai lasciato il negozio.");
         }
 
         [RelayCommand]
@@ -288,11 +299,11 @@ namespace LuminaBaySimulator
             {
                 Player.Money -= item.Cost;
                 Player.AddItem(item);
-                ShowStatusMessage($"Acquistato: {item.Name}!", 2000);
+                _ = ShowStatusMessage($"Acquistato: {item.Name}!", 2000);
             }
             else
             {
-                ShowStatusMessage("❌ Non hai abbastanza soldi!", 2000);
+                _ = ShowStatusMessage("❌ Non hai abbastanza soldi!", 2000);
             }
         }
 
@@ -304,7 +315,7 @@ namespace LuminaBaySimulator
 
             if (CurrentNpc.Dialogues == null || !CurrentNpc.Dialogues.ContainsKey("root"))
             {
-                ShowStatusMessage($"{npc.Name} sembra impegnato/a.", 2000);
+                _ = ShowStatusMessage($"{npc.Name} sembra impegnato/a.", 2000);
                 return;
             }
 
@@ -344,7 +355,7 @@ namespace LuminaBaySimulator
 
                 if (choice.Impact.Affection != 0 || choice.Impact.Patience != 0)
                 {
-                    ShowStatusMessage($"Effetto: Affetto {choice.Impact.Affection:+0;-0}, Pazienza {choice.Impact.Patience:+0;-0}");
+                    _ = ShowStatusMessage($"Effetto: Affetto {choice.Impact.Affection:+0;-0}, Pazienza {choice.Impact.Patience:+0;-0}");
                 }
 
                 if (choice.Impact.SetStoryFlags != null)
@@ -360,7 +371,7 @@ namespace LuminaBaySimulator
             {
                 CurrentViewMode = GameViewMode.LocationInside;
                 CurrentDialogueNode = null;
-                ShowStatusMessage("Conversazione terminata.");
+                _ = ShowStatusMessage("Conversazione terminata.");
             }
             else
             {
@@ -390,7 +401,7 @@ namespace LuminaBaySimulator
         private void SaveGame()
         {
             GameManager.Instance.SaveGame();
-            ShowStatusMessage("💾 Partita Salvata!", 2000);
+            _ = ShowStatusMessage("💾 Partita Salvata!", 2000);
         }
 
         [RelayCommand]
@@ -401,11 +412,11 @@ namespace LuminaBaySimulator
             {
                 BackToMap();
                 RefreshCommandStates();
-                ShowStatusMessage("📂 Partita Caricata!", 2000);
+                _ = ShowStatusMessage("📂 Partita Caricata!", 2000);
             }
             else
             {
-                ShowStatusMessage("⚠ Nessun salvataggio trovato.", 2000);
+                _ = ShowStatusMessage("⚠ Nessun salvataggio trovato.", 2000);
             }
         }
 
@@ -414,14 +425,14 @@ namespace LuminaBaySimulator
         private void DebugAddMoney()
         {
             Player.Money += 100;
-            ShowStatusMessage("💰 DEBUG: +100€ Aggiunti");
+            _ = ShowStatusMessage("💰 DEBUG: +100€ Aggiunti");
         }
 
         [RelayCommand]
         private void DebugSkipTime()
         {
             WorldTime.AdvanceTime();
-            ShowStatusMessage($"⏩ DEBUG: Tempo avanzato ({WorldTime.LocalizedPhase})");
+            _ = ShowStatusMessage($"⏩ DEBUG: Tempo avanzato ({WorldTime.LocalizedPhase})");
         }
 
         [RelayCommand]
@@ -429,7 +440,7 @@ namespace LuminaBaySimulator
         {
             Player.Energy = 100;
             Player.Stress = 0;
-            ShowStatusMessage("⚡ DEBUG: Statistiche Ripristinate");
+            _ = ShowStatusMessage("⚡ DEBUG: Statistiche Ripristinate");
         }
     }
 }
