@@ -203,6 +203,8 @@ namespace LuminaBaySimulator
                         if (npc.Stats != null && npc.Stats.CurrentPatience == 0)
                             npc.Stats.CurrentPatience = npc.Stats.BasePatience;
 
+                        npc.BindToWorldTime(this.WorldTime);
+
                         AllNpcs.Add(npc);
                     }
                 }

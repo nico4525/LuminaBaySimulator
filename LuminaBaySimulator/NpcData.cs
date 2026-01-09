@@ -78,9 +78,14 @@ namespace LuminaBaySimulator
 
         public NpcData()
         {
-            if (GameManager.Instance?.WorldTime != null)
+            
+        }
+
+        public void BindToWorldTime(TimeManager timeManager)
+        {
+            if (timeManager != null)
             {
-                GameManager.Instance.WorldTime.PropertyChanged += WorldTime_PropertyChanged;
+                timeManager.PropertyChanged += WorldTime_PropertyChanged;
             }
         }
 
